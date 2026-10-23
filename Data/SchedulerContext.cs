@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using TaskScheduler.Models;
+using TaskSchedulerApp.Models;
 
-namespace TaskScheduler.Data
+namespace TaskSchedulerApp.Data
 {
 	public class SchedulerContext : DbContext
 	{

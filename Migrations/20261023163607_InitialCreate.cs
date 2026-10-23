@@ -4,7 +4,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
-namespace TaskScheduler.Migrations
+namespace TaskSchedulerApp.Migrations
 {
     /// <inheritdoc />
     public partial class InitialCreate : Migration

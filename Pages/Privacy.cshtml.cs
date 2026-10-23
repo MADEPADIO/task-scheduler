@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
-namespace TaskScheduler.Pages
+namespace TaskSchedulerApp.Pages
 {
 	public class PrivacyModel : PageModel
 	{

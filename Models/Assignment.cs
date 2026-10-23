@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
 
-namespace TaskScheduler.Models
+namespace TaskSchedulerApp.Models
 {
 	public class Assignment
 	{

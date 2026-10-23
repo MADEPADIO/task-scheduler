@@ -5,14 +5,14 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
-using TaskScheduler.Data;
+using TaskSchedulerApp.Data;
 
 #nullable disable
 
-namespace TaskScheduler.Migrations
+namespace TaskSchedulerApp.Migrations
 {
     [DbContext(typeof(SchedulerContext))]
-    [Migration("20261023143626_InitialCreate")]
+    [Migration("20261023163607_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -25,7 +25,7 @@ namespace TaskScheduler.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("TaskScheduler.Models.Assignment", b =>
+            modelBuilder.Entity("TaskSchedulerApp.Models.Assignment", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -68,7 +68,7 @@ namespace TaskScheduler.Migrations
                     b.ToTable("Assignments");
                 });
 
-            modelBuilder.Entity("TaskScheduler.Models.Camera", b =>
+            modelBuilder.Entity("TaskSchedulerApp.Models.Camera", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -91,7 +91,7 @@ namespace TaskScheduler.Migrations
                     b.ToTable("Cameras");
                 });
 
-            modelBuilder.Entity("TaskScheduler.Models.Notification", b =>
+            modelBuilder.Entity("TaskSchedulerApp.Models.Notification", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -122,7 +122,7 @@ namespace TaskScheduler.Migrations
                     b.ToTable("Notifications");
                 });
 
-            modelBuilder.Entity("TaskScheduler.Models.Service", b =>
+            modelBuilder.Entity("TaskSchedulerApp.Models.Service", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -144,7 +144,7 @@ namespace TaskScheduler.Migrations
                     b.ToTable("Services");
                 });
 
-            modelBuilder.Entity("TaskScheduler.Models.Session", b =>
+            modelBuilder.Entity("TaskSchedulerApp.Models.Session", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -168,7 +168,7 @@ namespace TaskScheduler.Migrations
                     b.ToTable("Sessions");
                 });
 
-            modelBuilder.Entity("TaskScheduler.Models.User", b =>
+            modelBuilder.Entity("TaskSchedulerApp.Models.User", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -204,21 +204,21 @@ namespace TaskScheduler.Migrations
                     b.ToTable("Users");
                 });
 
-            modelBuilder.Entity("TaskScheduler.Models.Assignment", b =>
+            modelBuilder.Entity("TaskSchedulerApp.Models.Assignment", b =>
                 {
-                    b.HasOne("TaskScheduler.Models.Camera", "Camera")
+                    b.HasOne("TaskSchedulerApp.Models.Camera", "Camera")
                         .WithMany("Assignments")
                         .HasForeignKey("CameraId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("TaskScheduler.Models.Session", "Session")
+                    b.HasOne("TaskSchedulerApp.Models.Session", "Session")
                         .WithMany("Assignments")
                         .HasForeignKey("SessionId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("TaskScheduler.Models.User", "User")
+                    b.HasOne("TaskSchedulerApp.Models.User", "User")
                         .WithMany("Assignments")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -231,9 +231,9 @@ namespace TaskScheduler.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("TaskScheduler.Models.Notification", b =>
+            modelBuilder.Entity("TaskSchedulerApp.Models.Notification", b =>
                 {
-                    b.HasOne("TaskScheduler.Models.User", "User")
+                    b.HasOne("TaskSchedulerApp.Models.User", "User")
                         .WithMany("Notifications")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -242,9 +242,9 @@ namespace TaskScheduler.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("TaskScheduler.Models.Session", b =>
+            modelBuilder.Entity("TaskSchedulerApp.Models.Session", b =>
                 {
-                    b.HasOne("TaskScheduler.Models.Service", "Service")
+                    b.HasOne("TaskSchedulerApp.Models.Service", "Service")
                         .WithMany("Sessions")
                         .HasForeignKey("ServiceId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -253,22 +253,22 @@ namespace TaskScheduler.Migrations
                     b.Navigation("Service");
                 });
 
-            modelBuilder.Entity("TaskScheduler.Models.Camera", b =>
+            modelBuilder.Entity("TaskSchedulerApp.Models.Camera", b =>
                 {
                     b.Navigation("Assignments");
                 });
 
-            modelBuilder.Entity("TaskScheduler.Models.Service", b =>
+            modelBuilder.Entity("TaskSchedulerApp.Models.Service", b =>
                 {
                     b.Navigation("Sessions");
                 });
 
-            modelBuilder.Entity("TaskScheduler.Models.Session", b =>
+            modelBuilder.Entity("TaskSchedulerApp.Models.Session", b =>
                 {
                     b.Navigation("Assignments");
                 });
 
-            modelBuilder.Entity("TaskScheduler.Models.User", b =>
+            modelBuilder.Entity("TaskSchedulerApp.Models.User", b =>
                 {
                     b.Navigation("Assignments");
 

@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore;
-using TaskScheduler.Data;
+using TaskSchedulerApp.Data;
 
-namespace TaskScheduler
+namespace TaskSchedulerApp
 {
 	public class Program
 	{

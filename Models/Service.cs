@@ -1,4 +1,4 @@
-﻿namespace TaskScheduler.Models
+﻿namespace TaskSchedulerApp.Models
 {
 	public class Service
 	{

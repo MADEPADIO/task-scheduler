@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace TaskScheduler.Models
+namespace TaskSchedulerApp.Models
 {
 	public class User
 	{
