@@ -1,0 +1,53 @@
+## Visual Studio
+.vs/
+bin/
+obj/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+## Build results
+[Dd]ebug/
+[Rr]elease/
+[Bb]uild/
+[Ll]og/
+*.log
+
+## Secrets and environment
+*.env
+appsettings.Development.json
+appsettings.Production.json
+appsettings.Local.json
+
+## User-specific
+*.userprefs
+*.cache
+*.psess
+*.vsp
+
+## JetBrains (Rider)
+.idea/
+
+## Node
+node_modules/
+
+## Package artifacts
+*.nupkg
+*.snupkg
+
+## Publishing
+*.pubxml
+*.pubxml.user
+publish/
+
+## Merge artifacts
+*.orig
+*.rej
+
+## Test output
+TestResults/
+
+## OS
+.DS_Store
+Thumbs.db
