@@ -1,3 +1,6 @@
+using Microsoft.EntityFrameworkCore;
+using TaskScheduler.Data;
+
 namespace TaskScheduler
 {
 	public class Program
@@ -7,6 +10,7 @@ namespace TaskScheduler
 			var builder = WebApplication.CreateBuilder(args);
 
 			// Add services to the container.
+			builder.Services.AddDbContext<SchedulerContext>(options => options.UseNpgsql(builder.Configuration.GetConnectionString("Default")));
 			builder.Services.AddRazorPages();
 
 			var app = builder.Build();

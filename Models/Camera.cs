@@ -3,7 +3,7 @@
 	public class Camera
 	{
 		public int Id { get; set; }
-		public string Name { get; set; }
+		public string Name { get; set; } = string.Empty;
 
 		// Allows Admin to deactivate a camera without deleting it from the database
 		public bool IsActive { get; set; }

@@ -8,7 +8,7 @@ namespace TaskScheduler.Models
 
 		public string Name { get; set; } = string.Empty;
 
-		public string Email { get; set; }
+		public string Email { get; set; } = string.Empty;
 
 		// Nullable — only populated if IsAdmin is true
 		public string? PasswordHash { get; set; }

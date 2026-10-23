@@ -12,5 +12,5 @@
 		// Navigation
 		public ICollection<Session> Sessions { get; set; } = new List<Session>();
 	}
-	}
+	
 }
