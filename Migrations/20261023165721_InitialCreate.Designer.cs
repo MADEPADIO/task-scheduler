@@ -12,7 +12,7 @@ using TaskSchedulerApp.Data;
 namespace TaskSchedulerApp.Migrations
 {
     [DbContext(typeof(SchedulerContext))]
-    [Migration("20261023163607_InitialCreate")]
+    [Migration("20261023165721_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
