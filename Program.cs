@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.EntityFrameworkCore;
 using TaskSchedulerApp.Data;
 
@@ -11,6 +12,14 @@ namespace TaskSchedulerApp
 
 			// Add services to the container.
 			builder.Services.AddDbContext<SchedulerContext>(options => options.UseNpgsql(builder.Configuration.GetConnectionString("Default")));
+			builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+				.AddCookie(options =>
+				{
+					options.LoginPath = "/Account/Login";
+					options.LogoutPath = "/Account/Logout";
+					options.AccessDeniedPath = "/Account/Login";
+				});
+			builder.Services.AddAuthorization();
 			builder.Services.AddRazorPages();
 
 			var app = builder.Build();
@@ -27,6 +36,7 @@ namespace TaskSchedulerApp
 
 			app.UseRouting();
 
+			app.UseAuthentication();
 			app.UseAuthorization();
 
 			app.MapStaticAssets();
