@@ -1,0 +1,49 @@
+﻿@page
+@model TaskSchedulerApp.Pages.Cameras.IndexModel
+@{
+	ViewData["Title"] = "Manage Cameras";
+}
+
+<div class="container mt-4">
+	<div class="d-flex justify-content-between align-items-center mb-3">
+		<h1>Cameras</h1>
+		<a asp-page="./Create" class="btn btn-primary">Add New Camera</a>
+	</div>
+
+	<table class="table table-hover mt-4">
+		<thead>
+			<tr>
+				<th>Name</th>
+				<th>Status</th>
+				<th></th>
+			</tr>
+		</thead>
+		<tbody>
+			@foreach (var camera in Model.Cameras)
+			{
+				<tr class="@(camera.IsActive ? "" : "table-secondary text-muted")">
+					<td class="align-middle">@camera.Name</td>
+					<td class="align-middle">
+						@if (camera.IsActive)
+						{
+							<span class="badge bg-success">Active</span>
+						}
+						else
+						{
+							<span class="badge bg-danger">Inactive</span>
+						}
+					</td>
+					<td class="align-middle text-end">
+						<a asp-page="./Edit" asp-route-id="@camera.Id" class="btn btn-sm btn-outline-secondary">Edit</a>
+					</td>
+				</tr>
+			}
+			@if (!Model.Cameras.Any())
+			{
+				<tr>
+					<td colspan="3" class="text-center text-muted py-4">No cameras found. Add one to get started.</td>
+				</tr>
+			}
+		</tbody>
+	</table>
+</div>
