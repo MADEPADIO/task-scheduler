@@ -14,6 +14,9 @@ namespace TaskSchedulerApp.Models
 		public string? PasswordHash { get; set; }
 		public bool IsAdmin { get; set; }
 
+		// Soft delete flag
+		public bool IsActive { get; set; } = true;
+
 		// Admin-only note about capability (e.g., "Only knows handheld")
 		public string? Notes { get; set; }
 

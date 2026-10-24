@@ -23,7 +23,10 @@ namespace TaskSchedulerApp.Pages.Members
 		public async Task OnGetAsync()
 		{
 			// Load all users, order by Name
-			Members = await _context.Users.OrderBy(u => u.Name).ToListAsync();
+			Members = await _context.Users
+				.Where(u => u.IsActive)
+				.OrderBy(u => u.Name)
+				.ToListAsync();
 		}
 
 		// Inline toggle for Admin status
@@ -57,7 +60,7 @@ namespace TaskSchedulerApp.Pages.Members
 			
 			if (id == currentUserId)
 			{
-				TempData["Error"] = "You cannot delete your own account.";
+				TempData["Error"] = "You cannot deactivate your own account.";
 				return RedirectToPage("./Index");
 
 			}
@@ -65,7 +68,7 @@ namespace TaskSchedulerApp.Pages.Members
 			var user = await _context.Users.FindAsync(id);
 			if (user is not null)
 			{
-				_context.Users.Remove(user);
+				user.IsActive = false;
 				await _context.SaveChangesAsync();
 			}
 			return RedirectToPage("./Index");

@@ -26,6 +26,7 @@ namespace TaskSchedulerApp.Data
 				entity.Property(u => u.Email).IsRequired().HasMaxLength(200);
 				entity.HasIndex(u => u.Email).IsUnique();
 				entity.Property(u => u.IsAdmin).HasDefaultValue(false);
+				entity.Property(u => u.IsActive).HasDefaultValue(true);
 				entity.Property(u => u.Notes).HasMaxLength(1000);
 			});
 
