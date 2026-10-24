@@ -23,5 +23,18 @@ namespace TaskSchedulerApp.Pages.Cameras
 		{
 			Cameras = await _context.Cameras.OrderBy(c => c.Name).ToListAsync();
 		}
-    }
+
+		// Handler to toggle the camera status directly
+		public async Task<IActionResult> OnPostToggleStatusAsync(int id)
+		{
+			var camera = await _context.Cameras.FindAsync(id);
+			if (camera is not null)
+			{
+				camera.IsActive = !camera.IsActive;
+				await _context.SaveChangesAsync();
+			}
+			return RedirectToPage("./Index");
+		}
+
+	}
 }
