@@ -1,0 +1,82 @@
+﻿@page "{id:guid}"
+@model TaskSchedulerApp.Pages.Services.DetailsModel
+@{
+	ViewData["Title"] = $"{Model.Service.Name} - Details";
+}
+
+<div class="container mt-4">
+	<div class="d-flex justify-content-between align-items-center mb-4">
+		<div>
+			<h1 class="mb-0">@Model.Service.Name</h1>
+			<p class="text-muted mb-0">@Model.Service.Date.ToString("dddd, MMMM dd, yyyy") at @Model.Service.StartTime.ToString("hh:mm tt")</p>
+		</div>
+		<a asp-page="./Index" class="btn btn-outline-secondary">Back to Services</a>
+	</div>
+
+	<div class="row">
+		<!-- Left Column: List of Sessions -->
+		<div class="col-lg-7 mb-4">
+			<div class="card shadow-sm h-100">
+				<div class="card-header bg-white fw-bold">
+					Sessions (Order of Events)
+				</div>
+				<ul class="list-group list-group-flush">
+					@foreach (var session in Model.Service.Sessions)
+					{
+						<li class="list-group-item d-flex justify-content-between align-items-center">
+							<div>
+								<span class="badge bg-secondary me-2">@session.Order</span>
+								<span class="fw-bold">@session.Name</span>
+							</div>
+							<!-- Delete Session Form -->
+							<form method="post" asp-page-handler="DeleteSession" asp-route-sessionId="@session.Id" asp-route-serviceId="@Model.Service.Id" onsubmit="return confirm('Delete this session? Any assignments inside it will be lost.');">
+								<button type="submit" class="btn btn-sm btn-outline-danger" title="Remove Session">
+									Remove
+								</button>
+							</form>
+						</li>
+					}
+					@if (!Model.Service.Sessions.Any())
+					{
+						<li class="list-group-item text-muted text-center py-4">
+							No sessions added yet. Use the form to add the first block.
+						</li>
+					}
+				</ul>
+			</div>
+		</div>
+
+		<!-- Right Column: Add New Session Form -->
+		<div class="col-lg-5 mb-4">
+			<div class="card shadow-sm">
+				<div class="card-header bg-primary text-white fw-bold">
+					Add Session
+				</div>
+				<div class="card-body">
+					<form method="post" asp-page-handler="AddSession" asp-route-id="@Model.Service.Id">
+						<div asp-validation-summary="ModelOnly" class="text-danger small mb-2"></div>
+						<div asp-validation-summary="All" class="text-danger" small mb-2"></div>
+
+						<div class="mb-3">
+							<label asp-for="NewSession.Name" class="form-label">Session Name</label>
+							<input asp-for="NewSession.Name" class="form-control" placeholder="e.g., Praise & Worship" />
+							<span asp-validation-for="NewSession.Name" class="text-danger small"></span>
+						</div>
+
+						<div class="mb-3">
+							<label asp-for="NewSession.Order" class="form-label">Order (1, 2, 3...)</label>
+							<input asp-for="NewSession.Order" class="form-control" type="number" />
+							<span asp-validation-for="NewSession.Order" class="text-danger small"></span>
+						</div>
+
+						<button type="submit" class="btn btn-primary w-100">Add Session to Service</button>
+					</form>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+@section Scripts {
+	<partial name="_ValidationScriptsPartial" />
+}

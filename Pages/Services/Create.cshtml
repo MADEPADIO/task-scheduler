@@ -1,0 +1,49 @@
+﻿@page
+@model TaskSchedulerApp.Pages.Services.CreateModel
+@{
+	ViewData["Title"] = "Create Service";
+}
+
+<div class="container mt-4">
+	<div class="row justify-content-center">
+		<div class="col-md-8 col-lg-6">
+			<div class="card shadow-sm">
+				<div class="card-body p-4">
+					<h1 class="h3 mb-4">Create Service</h1>
+
+					<form method="post">
+						<div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+						<div class="mb-3">
+							<label asp-for="Service.Name" class="form-label">Service Name</label>
+							<input asp-for="Service.Name" class="form-control" placeholder="e.g., Sunday First Service" />
+							<span asp-validation-for="Service.Name" class="text-danger small"></span>
+						</div>
+
+						<div class="row">
+							<div class="col-md-6 mb-3">
+								<label asp-for="Service.Date" class="form-label">Date</label>
+								<input asp-for="Service.Date" class="form-control" type="date" />
+								<span asp-validation-for="Service.Date" class="text-danger small"></span>
+							</div>
+							<div class="col-md-6 mb-3">
+								<label asp-for="Service.StartTime" class="form-label">Start Time</label>
+								<input asp-for="Service.StartTime" class="form-control" type="time" />
+								<span asp-validation-for="Service.StartTime" class="text-danger small"></span>
+							</div>
+						</div>
+
+						<div class="d-flex justify-content-between mt-3">
+							<a asp-page="./Index" class="btn btn-outline-secondary">Cancel</a>
+							<button type="submit" class="btn btn-primary">Create Service</button>
+						</div>
+					</form>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+@section Scripts {
+	<partial name="_ValidationScriptsPartial" />
+}

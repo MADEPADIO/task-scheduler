@@ -27,6 +27,9 @@
 						@if (User.Identity?.IsAuthenticated == true)
 						{
 							<li class="nav-item">
+								<a class="nav-link text-dark" asp-area="" asp-page="/Services/Index">Services</a>
+							</li>
+							<li class="nav-item">
 								<a class="nav-link text-dark" asp-area="" asp-page="/Members/Index">Members</a>
 							</li>
 							<li class="nav-item">
