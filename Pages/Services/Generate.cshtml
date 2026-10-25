@@ -1,0 +1,46 @@
+﻿@page
+@model TaskSchedulerApp.Pages.Services.GenerateModel
+@{
+	ViewData["Title"] = "Generate Standard Sunday";
+}
+
+<div class="container mt-4">
+	<div class="row justify-content-center">
+		<div class="col-md-8 col-lg-6">
+			<div class="card shadow-sm border-success">
+				<div class="card-header bg-success text-white">
+					<h4 class="mb-0">Generate Standard Sunday</h4>
+				</div>
+				<div class="card-body">
+					<p class="text-muted mb-4">
+						This will automatically create <strong>3 Services</strong> (8:00 AM, 10:00 AM, 12:00 PM)
+						and attach your <strong>4 standard sessions</strong> to each one.
+					</p>
+
+					<form method="post">
+						<div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+						<div class="mb-4">
+							<label asp-for="SelectedDate" class="form-label fw-bold">Select the Sunday Date</label>
+							<input asp-for="SelectedDate" class="form-control" type="date" />
+							<span asp-validation-for="SelectedDate" class="text-danger small"></span>
+						</div>
+
+						<div class="alert alert-info small">
+							<strong>Note:</strong> If the times or names are different this week, you can edit the individual services after generating them.
+						</div>
+
+						<div class="d-flex justify-content-between mt-3">
+							<a asp-page="./Index" class="btn btn-outline-secondary">Cancel</a>
+							<button type="submit" class="btn btn-success">Generate Schedule</button>
+						</div>
+					</form>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+@section Scripts {
+	<partial name="_ValidationScriptsPartial" />
+}
