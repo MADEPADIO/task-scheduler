@@ -20,11 +20,22 @@ namespace TaskSchedulerApp.Pages.Services
 
 		public IList<Service> Services { get; set; } = default!;
 
+		[BindProperty(SupportsGet = true)]
+		public bool ShowPast { get; set; } = false;
+
 		public async Task OnGetAsync()
 		{
+			var query = _context.Services.Include(s => s.Sessions).AsQueryable();
+
+			// Filter to only today and future
+			if (!ShowPast)
+			{
+				var today = DateOnly.FromDateTime(DateTime.Today);
+				query = query.Where(s => s.Date >= today);
+			}
+
 			// Load services, order by date ascending upcoming first
-			Services = await _context.Services
-				.Include(s => s.Sessions)
+			Services = await query
 				.OrderBy(s => s.Date)
 				.ThenBy(s => s.StartTime)
 				.ToListAsync();

@@ -5,10 +5,25 @@
 }
 
 <div class="container mt-4">
-	<div class="d-flex justify-content-between align-items-center mb-3">
+	<div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
 		<h1>Services</h1>
-		<div>
-			<a asp-page="./Generate" class="btn btn-success me-2">Generate Standard Sunday</a>
+
+		<div class="d-flex align-items-center gap-2">
+			<!-- Show Past Toggle -->
+			@if (Model.ShowPast)
+			{
+				<a asp-page="./Index" asp-route-ShowPast="false" class="btn btn-outline-secondary">
+					Hide Past Services
+				</a>
+			}
+			else
+			{
+				<a asp-page="./Index" asp-route-ShowPast="true" class="btn btn-outline-secondary">
+					Show Past Services
+				</a>
+			}
+
+			<a asp-page="./Generate" class="btn btn-success">Generate Standard Sunday</a>
 			<a asp-page="./Create" class="btn btn-primary">Create Custom Service</a>
 		</div>
 	</div>
