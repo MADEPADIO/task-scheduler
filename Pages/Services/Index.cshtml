@@ -51,7 +51,10 @@
 						</td>
 						<td class="text-end">
 							<div class="d-flex justify-content-end gap-2">
-								                            <div class="d-flex justify-content-end gap-2">
+							<div class="d-flex justify-content-end gap-2">
+								<a asp-page="/Assignments/Index" asp-route-id="@service.Id" class="btn btn-sm btn-success">
+										Assign Cameras
+								</a>
                                 <a asp-page="./Details" asp-route-id="@service.Id" class="btn btn-sm btn-outline-primary">
                                     Manage Sessions
                                 </a>

@@ -1,4 +1,78 @@
-﻿@page
+﻿@page "{id:guid}"
 @model TaskSchedulerApp.Pages.Assignments.IndexModel
 @{
+	ViewData["Title"] = $"Assignments - {Model.Service.Name}";
 }
+
+<div class="container-fluid mt-4 px-lg-5">
+	<div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+		<div>
+			<h1 class="mb-0">Assignment Grid</h1>
+			<p class="text-muted mb-0">@Model.Service.Name - @Model.Service.Date.ToString("dddd, MMMM dd, yyyy") at @Model.Service.StartTime.ToString("hh:mm tt")</p>
+		</div>
+		<a asp-page="/Services/Index" class="btn btn-outline-secondary">Back to Services</a>
+	</div>
+
+	@if (TempData["Success"] is string successMsg)
+	{
+		<div class="alert alert-success alert-dismissible fade show" role="alert">
+			@successMsg
+			<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+		</div>
+	}
+
+	<div class="card shadow-sm">
+		<div class="card-body p-0">
+			<form method="post" asp-page-handler="Save" asp-route-serviceId="@Model.Service.Id">
+				<div class="table-responsive">
+					<table class="table table-bordered align-middle mb-0 text-center">
+						<thead class="table-light">
+							<tr>
+								<th style="width: 250px; text-align: left;">Session</th>
+								@foreach (var cam in Model.ActiveCameras)
+								{
+									<th>@cam.Name</th>
+								}
+							</tr>
+						</thead>
+						<tbody>
+							@foreach (var session in Model.Service.Sessions)
+							{
+								<tr>
+									<td class="text-start fw-bold bg-light">
+										<span class="badge bg-secondary me-2">@session.Order</span>
+										@session.Name
+									</td>
+									@foreach (var cam in Model.ActiveCameras)
+									{
+										var currentUserId = Model.ExistingAssignments[session.Id][cam.Id];
+										<td>
+											<select name="assign_@(session.Id)_@(cam.Id)" class="form-select form-select-sm">
+												<option value="">-- Unassigned --</option>
+												@foreach (var member in Model.ActiveMembers)
+												{
+													if (currentUserId == member.Id)
+													{
+														<option value="@member.Id" selected>@member.Name</option>
+													}
+													else
+													{
+														<option value="@member.Id">@member.Name</option>
+													}
+												}
+											</select>
+										</td>
+									}
+								</tr>
+							}
+						</tbody>
+					</table>
+				</div>
+
+				<div class="card-footer bg-white text-end py-3">
+					<button type="submit" class="btn btn-primary px-4">Save Assignments</button>
+				</div>
+			</form>
+		</div>
+	</div>
+</div>
