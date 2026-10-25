@@ -29,5 +29,19 @@ namespace TaskSchedulerApp.Pages.Services
 				.ThenBy(s => s.StartTime)
 				.ToListAsync();
 		}
-    }
+
+		public async Task<IActionResult> OnPostDeleteAsync(Guid Id)
+		{
+			var service = await _context.Services.FindAsync(Id);
+			if (service is not null)
+			{
+				// Because of Cascade Delete in the DbContext, this will also delete all Sessions and Assignments inside it.
+				_context.Services.Remove(service);
+				await _context.SaveChangesAsync();
+			}
+
+			return RedirectToPage("./Index");
+
+		}
+	}
 }
