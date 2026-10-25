@@ -1,7 +1,7 @@
 ﻿@page
 @model TaskSchedulerApp.Pages.Services.GenerateModel
 @{
-	ViewData["Title"] = "Generate Standard Sunday";
+	ViewData["Title"] = "Generate Standard Sundays";
 }
 
 <div class="container mt-4">
@@ -9,25 +9,32 @@
 		<div class="col-md-8 col-lg-6">
 			<div class="card shadow-sm border-success">
 				<div class="card-header bg-success text-white">
-					<h4 class="mb-0">Generate Standard Sunday</h4>
+					<h4 class="mb-0">Generate Standard Sundays</h4>
 				</div>
 				<div class="card-body">
 					<p class="text-muted mb-4">
 						This will automatically create <strong>3 Services</strong> (8:00 AM, 10:00 AM, 12:00 PM)
-						and attach your <strong>4 standard sessions</strong> to each one.
+						and attach your <strong>4 standard sessions</strong> to each one, for every week specified.
 					</p>
 
 					<form method="post">
 						<div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
-						<div class="mb-4">
-							<label asp-for="SelectedDate" class="form-label fw-bold">Select the Sunday Date</label>
-							<input asp-for="SelectedDate" class="form-control" type="date" />
-							<span asp-validation-for="SelectedDate" class="text-danger small"></span>
+						<div class="row">
+							<div class="col-md-6 mb-3">
+								<label asp-for="StartDate" class="form-label fw-bold">Start Date (Must be a Sunday)</label>
+								<input asp-for="StartDate" class="form-control" type="date" />
+								<span asp-validation-for="StartDate" class="text-danger small"></span>
+							</div>
+							<div class="col-md-6 mb-3">
+								<label asp-for="NumberOfWeeks" class="form-label fw-bold">Number of Weeks</label>
+								<input asp-for="NumberOfWeeks" class="form-control" type="number" min="1" max="12" />
+								<span asp-validation-for="NumberOfWeeks" class="text-danger small"></span>
+							</div>
 						</div>
 
-						<div class="alert alert-info small">
-							<strong>Note:</strong> If the times or names are different this week, you can edit the individual services after generating them.
+						<div class="alert alert-info small mt-2">
+							<strong>Tip:</strong> Generating 4 weeks will fill up the current month. If there is a special event, you can always edit or delete a specific week later.
 						</div>
 
 						<div class="d-flex justify-content-between mt-3">
