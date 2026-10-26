@@ -1,7 +1,9 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Cryptography.X509Certificates;
 using TaskSchedulerApp.Data;
 using TaskSchedulerApp.Models;
 
@@ -27,23 +29,28 @@ namespace TaskSchedulerApp.Pages.Assignments
 
 		public async Task<IActionResult> OnGetAsync(Guid id)
 		{
+			await LoadDataAsync(id);
+			if (Service == null) return NotFound();
+			return Page();
+		}
+
+		private async Task LoadDataAsync(Guid id)
+		{
 			var service = await _context.Services
 				.Include(s => s.Sessions.OrderBy(x => x.Order))
 				.FirstOrDefaultAsync(m => m.Id == id);
 
-			if (service == null) return NotFound();
+			if (service == null) return;
 
 			Service = service;
-
 			ActiveCameras = await _context.Cameras.Where(c => c.IsActive).OrderBy(c => c.Name).ToListAsync();
 			ActiveMembers = await _context.Users.Where(u => u.IsActive).OrderBy(u => u.Name).ToListAsync();
 
-			// Fetch existing assignments for this service's sessions
 			var existing = await _context.Assignments
 				.Where(a => a.Session.ServiceId == id)
 				.ToListAsync();
 
-			// Build the dictionary for the view
+			ExistingAssignments.Clear();
 			foreach (var session in Service.Sessions)
 			{
 				ExistingAssignments[session.Id] = new Dictionary<int, Guid?>();
@@ -53,8 +60,6 @@ namespace TaskSchedulerApp.Pages.Assignments
 					ExistingAssignments[session.Id][cam.Id] = assignment?.UserId;
 				}
 			}
-
-			return Page();
 		}
 
 		public async Task<IActionResult> OnPostSaveAsync(Guid serviceId)
@@ -65,54 +70,78 @@ namespace TaskSchedulerApp.Pages.Assignments
 
 			if (service == null) return NotFound();
 
-			// The form will submit keys in the format: "assign_{sessionId}_{cameraId}" with a value of the UserId
-			var formKeys = Request.Form.Keys.Where(k => k.StartsWith("assign_"));
+			var formKeys = Request.Form.Keys.Where(k => k.StartsWith("assign_")).ToList();
+			var submittedAssignments = new List<(Guid SessionId, int CameraId, Guid? UserId)>();
 
-			// Get all current assignments for these sessions
-			var sessionIds = service.Sessions.Select(s => s.Id).ToList();
-			var existingAssignments = await _context.Assignments
-				.Where(a => sessionIds.Contains(a.SessionId))
-				.ToListAsync();
-
+			// 1. Parse the form data
 			foreach (var key in formKeys)
 			{
 				var parts = key.Split('_');
 				if (parts.Length == 3 && Guid.TryParse(parts[1], out Guid sessionId) && int.TryParse(parts[2], out int cameraId))
 				{
 					var value = Request.Form[key].ToString();
+					Guid? userId = (string.IsNullOrEmpty(value) || !Guid.TryParse(value, out Guid parsedId)) ? null : parsedId;
+					submittedAssignments.Add((sessionId, cameraId, userId));
+				}
+			}
 
-					// If the dropdown was set to "Unassigned" (empty), remove the assignment
-					if (string.IsNullOrEmpty(value) || !Guid.TryParse(value, out Guid userId))
+			// 2. Validate: Check if the same user is assigned to multiple cameras in the SAME session
+			var duplicate = submittedAssignments
+				.Where(a => a.UserId.HasValue)
+				.GroupBy(a => new { a.SessionId, a.UserId })
+				.Where(g => g.Count() > 1)
+				.FirstOrDefault();
+
+			if (duplicate != null)
+			{
+				var member = await _context.Users.FindAsync(duplicate.Key.UserId);
+				var session = await _context.Sessions.FindAsync(duplicate.Key.SessionId);
+				TempData["Error"] = $"Cannot assign {member?.Name} to multiple cameras in the same session ({session?.Name}).";
+
+				await LoadDataAsync(serviceId);
+				return Page();
+			}
+
+			var sessionIds = service.Sessions.Select(s => s.Id).ToList();
+			var existingAssignments = await _context.Assignments
+				.Where(a => sessionIds.Contains(a.SessionId))
+				.ToListAsync();
+
+			// 3. First Pass: Remove assignments that were cleared or changed (prevents unique constraint crash on swaps)
+			var toRemove = new List<Assignment>();
+			foreach (var sub in submittedAssignments)
+			{
+				var existing = existingAssignments.FirstOrDefault(a => a.SessionId == sub.SessionId && a.CameraId == sub.CameraId);
+				if (existing != null && existing.UserId != sub.UserId)
+				{
+					toRemove.Add(existing);
+				}
+			}
+
+			if (toRemove.Any())
+			{
+				_context.Assignments.RemoveRange(toRemove);
+				await _context.SaveChangesAsync(); // Flush deletes first
+			}
+
+			// 4. Second Pass: Add new assignments
+			foreach (var sub in submittedAssignments)
+			{
+				if (!sub.UserId.HasValue) continue; // Ignore unassigned
+
+				// We already deleted the ones that changed, so if it exists now, it didn't change.
+				var stillExists = await _context.Assignments.AnyAsync(a => a.SessionId == sub.SessionId && a.CameraId == sub.CameraId);
+
+				if (!stillExists)
+				{
+					_context.Assignments.Add(new Assignment
 					{
-						var toRemove = existingAssignments.FirstOrDefault(a => a.SessionId == sessionId && a.CameraId == cameraId);
-						if (toRemove != null) _context.Assignments.Remove(toRemove);
-					}
-					else
-					{
-						// If it exists, update it. If not, create it.
-						var existing = existingAssignments.FirstOrDefault(a => a.SessionId == sessionId && a.CameraId == cameraId);
-						if (existing != null)
-						{
-							existing.UserId = userId;
-							// Reset status to pending if the user changed
-							if (existing.UserId != userId)
-							{
-								existing.Status = AssignmentStatus.Pending;
-								existing.AbsenceReason = null;
-							}
-						}
-						else
-						{
-							_context.Assignments.Add(new Assignment
-							{
-								Id = Guid.NewGuid(),
-								SessionId = sessionId,
-								CameraId = cameraId,
-								UserId = userId,
-								Status = AssignmentStatus.Pending
-							});
-						}
-					}
+						Id = Guid.NewGuid(),
+						SessionId = sub.SessionId,
+						CameraId = sub.CameraId,
+						UserId = sub.UserId.Value,
+						Status = AssignmentStatus.Pending
+					});
 				}
 			}
 
