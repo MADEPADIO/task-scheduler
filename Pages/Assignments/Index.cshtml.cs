@@ -24,7 +24,8 @@ namespace TaskSchedulerApp.Pages.Assignments
 		public IList<User> ActiveMembers { get; set; } = default!;
 
 		// This will hold the existing assignments for the view to pre-select dropdowns
-		// Key: SessionId, Value: Dictionary of CameraId -> UserId
+		// Key: SessionId, CameraId. Value: List of UserIds who CANNOT be assigned to this cell
+		public Dictionary<(Guid, int), HashSet<Guid>> DisabledUsers { get; set; } = new();
 		public Dictionary<Guid, Dictionary<int, Guid?>> ExistingAssignments { get; set; } = new();
 
 		public async Task<IActionResult> OnGetAsync(Guid id)
@@ -46,7 +47,8 @@ namespace TaskSchedulerApp.Pages.Assignments
 			ActiveCameras = await _context.Cameras.Where(c => c.IsActive).OrderBy(c => c.Name).ToListAsync();
 			ActiveMembers = await _context.Users.Where(u => u.IsActive).OrderBy(u => u.Name).ToListAsync();
 
-			var existing = await _context.Assignments
+			// 1. Get all assignments for THIS service to populate the dropdowns
+			var currentServiceAssignments = await _context.Assignments
 				.Where(a => a.Session.ServiceId == id)
 				.ToListAsync();
 
@@ -56,14 +58,68 @@ namespace TaskSchedulerApp.Pages.Assignments
 				ExistingAssignments[session.Id] = new Dictionary<int, Guid?>();
 				foreach (var cam in ActiveCameras)
 				{
-					var assignment = existing.FirstOrDefault(a => a.SessionId == session.Id && a.CameraId == cam.Id);
+					var assignment = currentServiceAssignments.FirstOrDefault(a => a.SessionId == session.Id && a.CameraId == cam.Id);
 					ExistingAssignments[session.Id][cam.Id] = assignment?.UserId;
+				}
+			}
+
+			// 2. RULES ENGINE: Get assignments for the SAME DAY but OTHER SERVICES
+			var otherServicesToday = await _context.Assignments
+				.Include(a => a.Session)
+				.Where(a => a.Session.Service.Date == Service.Date && a.Session.ServiceId != Service.Id)
+				.ToListAsync();
+
+			// Count distinct services each user is working today
+			var userServiceCount = otherServicesToday
+				.GroupBy(a => a.UserId)
+				.ToDictionary(g => g.Key, g => g.Select(a => a.Session.ServiceId).Distinct().Count());
+
+			// Track which cameras each user has used today
+			var userCameras = otherServicesToday
+				.GroupBy(a => a.UserId)
+				.ToDictionary(g => g.Key, g => g.Select(a => a.CameraId).ToHashSet());
+
+			// Users already working in THIS service (so we don't block them from adding more sessions here)
+			var usersInCurrentService = currentServiceAssignments.Select(a => a.UserId).ToHashSet();
+
+			DisabledUsers.Clear();
+			foreach (var session in Service.Sessions)
+			{
+				foreach (var cam in ActiveCameras)
+				{
+					var disabledList = new HashSet<Guid>();
+
+					foreach (var member in ActiveMembers)
+					{
+						bool isUserInCurrentService = usersInCurrentService.Contains(member.Id);
+
+						// RULE 1: Max 2 Services per day
+						if (!isUserInCurrentService)
+						{
+							if (userServiceCount.TryGetValue(member.Id, out int count) && count >= 2)
+							{
+								disabledList.Add(member.Id);
+								continue; // No need to check camera rule if they are already maxed out
+							}
+						}
+
+						// RULE 2: Same camera across services on the same day
+						if (userCameras.TryGetValue(member.Id, out var cams) && cams.Contains(cam.Id))
+						{
+							disabledList.Add(member.Id);
+						}
+					}
+					DisabledUsers[(session.Id, cam.Id)] = disabledList;
 				}
 			}
 		}
 
 		public async Task<IActionResult> OnPostSaveAsync(Guid serviceId)
 		{
+			// (Keep the OnPostSaveAsync from the previous step exactly as it is)
+			// The validation logic we added earlier will catch any rogue submissions
+			// and prevent unique constraint crashes.
+
 			var service = await _context.Services
 				.Include(s => s.Sessions)
 				.FirstOrDefaultAsync(m => m.Id == serviceId);
@@ -97,7 +153,6 @@ namespace TaskSchedulerApp.Pages.Assignments
 				var member = await _context.Users.FindAsync(duplicate.Key.UserId);
 				var session = await _context.Sessions.FindAsync(duplicate.Key.SessionId);
 				TempData["Error"] = $"Cannot assign {member?.Name} to multiple cameras in the same session ({session?.Name}).";
-
 				await LoadDataAsync(serviceId);
 				return Page();
 			}

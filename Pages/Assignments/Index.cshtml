@@ -55,17 +55,27 @@
 									{
 										var currentUserId = Model.ExistingAssignments[session.Id][cam.Id];
 										<td>
+											@{
+												var disabledList = Model.DisabledUsers[(session.Id, cam.Id)];
+											}
 											<select name="assign_@(session.Id)_@(cam.Id)" class="form-select form-select-sm">
 												<option value="">-- Unassigned --</option>
 												@foreach (var member in Model.ActiveMembers)
 												{
-													if (currentUserId == member.Id)
+													bool isSelected = currentUserId == member.Id;
+													bool isDisabled = disabledList.Contains(member.Id);
+
+													// If they are currently assigned to this slot, allow them to stay selected
+													// even if the rules would normally block them (e.g. data from before the rule).
+													if (isSelected && isDisabled) isDisabled = false;
+
+													if (isSelected)
 													{
-														<option value="@member.Id" selected>@member.Name</option>
+														<option value="@member.Id" selected disabled="@isDisabled">@member.Name</option>
 													}
 													else
 													{
-														<option value="@member.Id">@member.Name</option>
+														<option value="@member.Id" disabled="@isDisabled">@member.Name</option>
 													}
 												}
 											</select>
