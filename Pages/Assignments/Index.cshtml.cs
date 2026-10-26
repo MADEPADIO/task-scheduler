@@ -108,8 +108,8 @@ namespace TaskSchedulerApp.Pages.Assignments
 						}
 
 						// RULE 2: Same camera across services on the same day
-						// Notice we do NOT check OverrideRules here. This rule is a hard block regardless of override status.
-						if (userCameras.TryGetValue(member.Id, out var cams) && cams.Contains(cam.Id))
+						// We now check !OverrideRules here as well. If the Admin flips the switch, she can bypass this too.
+						if (!OverrideRules && userCameras.TryGetValue(member.Id, out var cams) && cams.Contains(cam.Id))
 						{
 							disabledList.Add(member.Id);
 						}
