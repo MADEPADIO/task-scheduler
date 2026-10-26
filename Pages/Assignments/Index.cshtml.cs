@@ -1,9 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
-using System.Security.Cryptography.X509Certificates;
 using TaskSchedulerApp.Data;
 using TaskSchedulerApp.Models;
 
@@ -22,6 +20,11 @@ namespace TaskSchedulerApp.Pages.Assignments
 		public Service Service { get; set; } = default!;
 		public IList<Camera> ActiveCameras { get; set; } = default!;
 		public IList<User> ActiveMembers { get; set; } = default!;
+
+		// NEW: Binds the ?OverrideRules=true/false from the URL to this property.
+		// When true, the Max 2 Services rule is ignored in the UI dropdowns.
+		[BindProperty(SupportsGet = true)]
+		public bool OverrideRules { get; set; } = false;
 
 		// This will hold the existing assignments for the view to pre-select dropdowns
 		// Key: SessionId, CameraId. Value: List of UserIds who CANNOT be assigned to this cell
@@ -94,7 +97,8 @@ namespace TaskSchedulerApp.Pages.Assignments
 						bool isUserInCurrentService = usersInCurrentService.Contains(member.Id);
 
 						// RULE 1: Max 2 Services per day
-						if (!isUserInCurrentService)
+						// We check !OverrideRules here. If the Admin flipped the switch, we skip this check.
+						if (!isUserInCurrentService && !OverrideRules)
 						{
 							if (userServiceCount.TryGetValue(member.Id, out int count) && count >= 2)
 							{
@@ -104,6 +108,7 @@ namespace TaskSchedulerApp.Pages.Assignments
 						}
 
 						// RULE 2: Same camera across services on the same day
+						// Notice we do NOT check OverrideRules here. This rule is a hard block regardless of override status.
 						if (userCameras.TryGetValue(member.Id, out var cams) && cams.Contains(cam.Id))
 						{
 							disabledList.Add(member.Id);
@@ -116,9 +121,7 @@ namespace TaskSchedulerApp.Pages.Assignments
 
 		public async Task<IActionResult> OnPostSaveAsync(Guid serviceId)
 		{
-			// (Keep the OnPostSaveAsync from the previous step exactly as it is)
-			// The validation logic we added earlier will catch any rogue submissions
-			// and prevent unique constraint crashes.
+			// The validation logic here catches rogue submissions and prevents unique constraint crashes.
 
 			var service = await _context.Services
 				.Include(s => s.Sessions)

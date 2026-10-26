@@ -13,25 +13,39 @@
 		<a asp-page="/Services/Index" class="btn btn-outline-secondary">Back to Services</a>
 	</div>
 
-	    @if (TempData["Success"] is string successMsg)
-    {
-        <div class="alert alert-success alert-dismissible fade show" role="alert">
-            @successMsg
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
-    }
-    <!--ERROR BANNER -->
-    @if (TempData["Error"] is string errorMsg)
-    {
-        <div class="alert alert-danger alert-dismissible fade show" role="alert">
-            @errorMsg
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
-    }
+	@if (TempData["Success"] is string successMsg)
+	{
+		<div class="alert alert-success alert-dismissible fade show" role="alert">
+			@successMsg
+			<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+		</div>
+	}
+	@if (TempData["Error"] is string errorMsg)
+	{
+		<div class="alert alert-danger alert-dismissible fade show" role="alert">
+			@errorMsg
+			<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+		</div>
+	}
 
 	<div class="card shadow-sm">
 		<div class="card-body p-0">
 			<form method="post" asp-page-handler="Save" asp-route-serviceId="@Model.Service.Id">
+
+				<!-- NEW: Override Toggle Switch -->
+				<div class="card-header bg-white d-flex align-items-center py-3 border-bottom">
+					<div class="form-check form-switch mb-0">
+						<!-- The JS here reloads the page and appends ?OverrideRules=true or false to the URL -->
+						<input class="form-check-input" type="checkbox" role="switch" id="overrideSwitch"
+						@(Model.OverrideRules ? "checked" : "")
+							   onchange="window.location.href='?id=@Model.Service.Id&OverrideRules=' + this.checked">
+						<label class="form-check-label fw-bold text-danger" for="overrideSwitch">
+							Override Max 2 Services Rule
+						</label>
+						<span class="text-muted small ms-2">(Use only for emergencies)</span>
+					</div>
+				</div>
+
 				<div class="table-responsive">
 					<table class="table table-bordered align-middle mb-0 text-center">
 						<thead class="table-light">
@@ -54,10 +68,9 @@
 									@foreach (var cam in Model.ActiveCameras)
 									{
 										var currentUserId = Model.ExistingAssignments[session.Id][cam.Id];
+										var disabledList = Model.DisabledUsers[(session.Id, cam.Id)];
+
 										<td>
-											@{
-												var disabledList = Model.DisabledUsers[(session.Id, cam.Id)];
-											}
 											<select name="assign_@(session.Id)_@(cam.Id)" class="form-select form-select-sm">
 												<option value="">-- Unassigned --</option>
 												@foreach (var member in Model.ActiveMembers)
@@ -65,13 +78,13 @@
 													bool isSelected = currentUserId == member.Id;
 													bool isDisabled = disabledList.Contains(member.Id);
 
-													// If they are currently assigned to this slot, allow them to stay selected
-													// even if the rules would normally block them (e.g. data from before the rule).
-													if (isSelected && isDisabled) isDisabled = false;
-
 													if (isSelected)
 													{
-														<option value="@member.Id" selected disabled="@isDisabled">@member.Name</option>
+														// If they are selected BUT disabled, it means they are violating the rules.
+														// We do NOT add disabled="disabled" here, so the Admin can select someone else to replace them.
+														<option value="@member.Id" selected title="Rule Violation: Max 2 services or same camera">
+															@member.Name (Rule Violation)
+														</option>
 													}
 													else
 													{
