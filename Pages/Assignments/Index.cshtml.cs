@@ -21,8 +21,11 @@ namespace TaskSchedulerApp.Pages.Assignments
 		public IList<Camera> ActiveCameras { get; set; } = default!;
 		public IList<User> ActiveMembers { get; set; } = default!;
 
+		// CHANGED: Removed the '= false' default. 
+		// A bool? can be true, false, or null. 
+		// If it is null, it means the page just loaded and the user hasn't touched the switch yet.
 		[BindProperty(SupportsGet = true)]
-		public bool OverrideRules { get; set; } = false;
+		public bool? OverrideRules { get; set; }
 
 		public Dictionary<(Guid, int), HashSet<Guid>> DisabledUsers { get; set; } = new();
 
@@ -79,6 +82,31 @@ namespace TaskSchedulerApp.Pages.Assignments
 				.GroupBy(a => a.UserId)
 				.ToDictionary(g => g.Key, g => g.Select(a => a.CameraId).ToHashSet());
 
+			// NEW: Auto-detect if the current assignments in the database ALREADY violate the rules
+			bool hasExistingViolations = false;
+			foreach (var assignment in currentServiceAssignments)
+			{
+				// Check Max 2 Services Rule
+				if (userServiceCount.TryGetValue(assignment.UserId, out int count) && count >= 2)
+				{
+					hasExistingViolations = true;
+					break;
+				}
+				// Check Same Camera Rule
+				if (userCameras.TryGetValue(assignment.UserId, out var cams) && cams.Contains(assignment.CameraId))
+				{
+					hasExistingViolations = true;
+					break;
+				}
+			}
+
+			// If the page just loaded (OverrideRules is null) AND we found violations in the database,
+			// automatically turn the Override switch ON so the Admin doesn't get yelled at for their own override.
+			if (!OverrideRules.HasValue && hasExistingViolations)
+			{
+				OverrideRules = true;
+			}
+
 			var usersInCurrentService = currentServiceAssignments.Select(a => a.UserId).ToHashSet();
 
 			DisabledUsers.Clear();
@@ -93,7 +121,8 @@ namespace TaskSchedulerApp.Pages.Assignments
 						bool isUserInCurrentService = usersInCurrentService.Contains(member.Id);
 
 						// RULE 1: Max 2 Services
-						if (!isUserInCurrentService && !OverrideRules)
+						// CHANGED: We check if OverrideRules is NOT true. If it's null (default) or false, we enforce the rule.
+						if (!isUserInCurrentService && OverrideRules != true)
 						{
 							if (userServiceCount.TryGetValue(member.Id, out int count) && count >= 2)
 							{
@@ -103,7 +132,8 @@ namespace TaskSchedulerApp.Pages.Assignments
 						}
 
 						// RULE 2: Same camera
-						if (!OverrideRules && userCameras.TryGetValue(member.Id, out var cams) && cams.Contains(cam.Id))
+						// CHANGED: Same here. Only enforce if OverrideRules is NOT true.
+						if (OverrideRules != true && userCameras.TryGetValue(member.Id, out var cams) && cams.Contains(cam.Id))
 						{
 							disabledList.Add(member.Id);
 						}

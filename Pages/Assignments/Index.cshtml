@@ -36,7 +36,7 @@
 				<div class="card-header bg-white d-flex align-items-center py-3 border-bottom">
 					<div class="form-check form-switch mb-0">
 						<input class="form-check-input" type="checkbox" role="switch" id="overrideSwitch"
-						@(Model.OverrideRules ? "checked" : "")
+						@(Model.OverrideRules == true ? "checked" : "")
 							   onchange="window.location.href='?id=@Model.Service.Id&OverrideRules=' + this.checked">
 						<label class="form-check-label fw-bold text-danger" for="overrideSwitch">
 							Override Max 2 Services Rule
