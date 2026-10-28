@@ -9,8 +9,8 @@ using TaskSchedulerApp.Models;
 namespace TaskSchedulerApp.Pages.Member
 {
 	[Authorize]
-    public class IndexModel : PageModel
-    {
+	public class IndexModel : PageModel
+	{
 		private readonly SchedulerContext _context;
 
 		public IndexModel(SchedulerContext context)
@@ -27,23 +27,20 @@ namespace TaskSchedulerApp.Pages.Member
 			if (!Guid.TryParse(userIdString, out Guid userId))
 			{
 				return RedirectToPage("/Account/Login");
-
 			}
 
 			var today = DateOnly.FromDateTime(DateTime.Today);
 
-			// Get upcoming services
 			UpcomingServices = await _context.Services
 				.Where(s => s.Date >= today)
 				.Include(s => s.Sessions.OrderBy(x => x.Order))
 				.OrderBy(s => s.Date)
 				.ThenBy(s => s.StartTime)
-				.Take(5) // Show the next services
+				.Take(3)
 				.ToListAsync();
 
 			var serviceIds = UpcomingServices.Select(s => s.Id).ToList();
 
-			// Get this specific user's assignments for those services
 			var assignments = await _context.Assignments
 				.Include(a => a.Camera)
 				.Where(a => a.UserId == userId && serviceIds.Contains(a.Session.ServiceId))
@@ -51,51 +48,71 @@ namespace TaskSchedulerApp.Pages.Member
 
 			foreach (var assignment in assignments)
 			{
-				// Map to a dictionary so the UI can easily find it.
-				// Key: SessionId, CameraId
 				MyAssignments[(assignment.SessionId, assignment.CameraId)] = assignment;
 			}
+
 			return Page();
 		}
 
-		// Handler to mark attending/absent
-		public async Task<IActionResult> OnPostUpdateStatusAsync(Guid assignmentId, AssignmentStatus status, string? absenceReason)
+		// NEW: Handles saving all statuses at once
+		public async Task<IActionResult> OnPostUpdateAllStatusesAsync()
 		{
 			var userIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
-			if (!Guid.TryParse(userIdString, out Guid userId))
+			if (!Guid.TryParse(userIdString, out Guid userId)) return RedirectToPage("/Account/Login");
+
+			var user = await _context.Users.FindAsync(userId);
+			var admins = await _context.Users.Where(u => u.IsAdmin && u.IsActive).ToListAsync();
+
+			// Loop through all keys in the submitted form
+			foreach (var key in Request.Form.Keys)
 			{
-				return RedirectToPage("/Account/Login");
-			}
-
-			var assignment = await _context.Assignments.FirstOrDefaultAsync(a => a.Id == assignmentId && a.UserId == userId);
-
-			if (assignment != null)
-			{
-				assignment.Status = status;
-				assignment.AbsenceReason = status == AssignmentStatus.Absent ? absenceReason : null;
-
-				// Notify Admins if they mark absent
-				if (status == AssignmentStatus.Absent)
+				if (key.StartsWith("status_"))
 				{
-					var user = await _context.Users.FindAsync(userId);
-					var admins = await _context.Users.Where(u => u.IsAdmin && u.IsActive).ToListAsync();
+					var idString = key.Replace("status_", "");
+					if (!Guid.TryParse(idString, out Guid assignmentId)) continue;
 
-					foreach (var admin in admins)
+					var statusString = Request.Form[key].ToString();
+					var reason = Request.Form[$"reason_{assignmentId}"].ToString();
+
+					if (!Enum.TryParse<AssignmentStatus>(statusString, out var newStatus)) continue;
+
+					// Find the assignment in the database
+					var assignment = await _context.Assignments
+						.Include(a => a.Session)
+						.Include(a => a.Camera)
+						.FirstOrDefaultAsync(a => a.Id == assignmentId && a.UserId == userId);
+
+					if (assignment != null)
 					{
-						_context.Notifications.Add(new Notification
+						// Check if they are NEWLY marking themselves absent (to prevent duplicate notifications)
+						bool isNewlyAbsent = newStatus == AssignmentStatus.Absent && assignment.Status != AssignmentStatus.Absent;
+
+						assignment.Status = newStatus;
+						assignment.AbsenceReason = newStatus == AssignmentStatus.Absent ? reason : null;
+
+						// If newly absent, notify the Admins
+						if (isNewlyAbsent)
 						{
-							Id = Guid.NewGuid(),
-							UserId = admin.Id,
-							Message = $"{user?.Name} marked absent for {assignment.Session.Name} ({assignment.Camera.Name}). Reason: {absenceReason}",
-							CreatedAt = DateTime.UtcNow
-						});
+							foreach (var admin in admins)
+							{
+								var sessionName = assignment.Session?.Name ?? "Unknown Session";
+								var cameraName = assignment.Camera?.Name ?? "Unknown Camera";
+
+								_context.Notifications.Add(new Notification
+								{
+									Id = Guid.NewGuid(),
+									UserId = admin.Id,
+									Message = $"{user?.Name} marked absent for {sessionName} ({cameraName}). Reason: {reason}",
+									CreatedAt = DateTime.UtcNow
+								});
+							}
+						}
 					}
 				}
-
-				await _context.SaveChangesAsync();
-				TempData["Success"] = "Your status has been updated.";
 			}
 
+			await _context.SaveChangesAsync();
+			TempData["Success"] = "Your schedule has been updated successfully.";
 			return RedirectToPage("./Index");
 		}
 	}

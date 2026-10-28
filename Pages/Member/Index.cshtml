@@ -2,96 +2,144 @@
 @using TaskSchedulerApp.Models
 @model TaskSchedulerApp.Pages.Member.IndexModel
 @{
-	ViewData["Title"] = "My Schedule";
+    ViewData["Title"] = "My Schedule";
 }
 
 <div class="container mt-4">
-	<h1 class="mb-4">My Schedule</h1>
+    <h1 class="mb-4">My Schedule</h1>
 
-	@if (TempData["Success"] is string successMsg)
-	{
-		<div class="alert alert-success alert-dismissible fade show" role="alert">
-			@successMsg
-			<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-		</div>
-	}
+    @if (TempData["Success"] is string successMsg)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            @successMsg
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
 
-	@if (!Model.UpcomingServices.Any())
-	{
-		<div class="alert alert-info">You have no upcoming services scheduled.</div>
-	}
+    @if (!Model.UpcomingServices.Any())
+    {
+        <div class="alert alert-info">You have no upcoming services scheduled.</div>
+    }
+    else
+    {
+        <!-- ONE SINGLE FORM WRAPPING EVERYTHING -->
+        <form method="post" asp-page-handler="UpdateAllStatuses">
+            
+            @foreach (var service in Model.UpcomingServices)
+            {
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header bg-dark text-white">
+                        <h5 class="mb-0">@service.Date.ToString("dddd, MMMM dd, yyyy") - @service.Name</h5>
+                        <small>@service.StartTime.ToString("hh:mm tt")</small>
+                    </div>
+                    <div class="card-body p-0">
+                        <table class="table table-bordered align-middle mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Session</th>
+                                    <th>Camera</th>
+                                    <th style="width: 50%;">Status & Reason</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var session in service.Sessions)
+                                {
+                                    var myAssignmentsForSession = Model.MyAssignments
+                                        .Where(kvp => kvp.Key.Item1 == session.Id)
+                                        .Select(kvp => kvp.Value)
+                                        .ToList();
 
-	@foreach (var service in Model.UpcomingServices)
-	{
-		<div class="card shadow-sm mb-4">
-			<div class="card-header bg-dark text-white">
-				<h5 class="mb-0">@service.Date.ToString("dddd, MMMM dd, yyyy") - @service.Name</h5>
-				<small>@service.StartTime.ToString("hh:mm tt")</small>
-			</div>
-			<div class="card-body p-0">
-				<table class="table table-bordered align-middle mb-0">
-					<thead class="table-light">
-						<tr>
-							<th>Session</th>
-							<th>Camera</th>
-							<th>Status</th>
-						</tr>
-					</thead>
-					<tbody>
-						@foreach (var session in service.Sessions)
-						{
-							// Find if the user is assigned to any camera in this session
-							var myAssignmentsForSession = Model.MyAssignments
-								.Where(kvp => kvp.Key.Item1 == session.Id)
-								.Select(kvp => kvp.Value)
-								.ToList();
+                                    if (!myAssignmentsForSession.Any())
+                                    {
+                                        <tr class="text-muted">
+                                            <td><span class="badge bg-secondary me-2">@session.Order</span> @session.Name</td>
+                                            <td colspan="2" class="fst-italic">Not assigned (Resting)</td>
+                                        </tr>
+                                    }
+                                    else
+                                    {
+                                        foreach (var assignment in myAssignmentsForSession)
+                                        {
+                                            <tr>
+                                                <td><span class="badge bg-secondary me-2">@session.Order</span> @session.Name</td>
+                                                <td><strong>@assignment.Camera.Name</strong></td>
+                                                <td>
+                                                    <div class="d-flex flex-column flex-md-row gap-2">
+                                                        <!-- Status Dropdown -->
+                                                        <select name="status_@assignment.Id" class="form-select form-select-sm status-select" style="width: auto;" data-assignment-id="@assignment.Id">
+                                                            @if (assignment.Status == AssignmentStatus.Attending)
+                                                            {
+                                                                <option value="Attending" selected>I will be there</option>
+                                                            }
+                                                            else
+                                                            {
+                                                                <option value="Attending">I will be there</option>
+                                                            }
+                                                            
+                                                            @if (assignment.Status == AssignmentStatus.Absent)
+                                                            {
+                                                                <option value="Absent" selected>I cannot make it</option>
+                                                            }
+                                                            else
+                                                            {
+                                                                <option value="Absent">I cannot make it</option>
+                                                            }
+                                                            
+                                                            @if (assignment.Status == AssignmentStatus.Pending)
+                                                            {
+                                                                <option value="Pending" selected>Pending</option>
+                                                            }
+                                                            else
+                                                            {
+                                                                <option value="Pending">Pending</option>
+                                                            }
+                                                        </select>
 
-							if (!myAssignmentsForSession.Any())
-							{
-								<tr class="text-muted">
-									<td><span class="badge bg-secondary me-2">@session.Order</span> @session.Name</td>
-									<td colspan="2" class="fst-italic">Not assigned (Resting)</td>
-								</tr>
-							}
-							else
-							{
-								foreach (var assignment in myAssignmentsForSession)
-								{
-									<tr>
-										<td><span class="badge bg-secondary me-2">@session.Order</span> @session.Name</td>
-										<td><strong>@assignment.Camera.Name</strong></td>
-										<td>
-											<!-- Status Update Form -->
-											<form method="post" asp-page-handler="UpdateStatus" asp-route-assignmentId="@assignment.Id" class="d-flex align-items-center gap-2 flex-wrap">
-												@if (assignment.Status == AssignmentStatus.Attending)
-												{
-													<span class="badge bg-success">Attending</span>
-												}
-												else if (assignment.Status == AssignmentStatus.Absent)
-												{
-													<span class="badge bg-danger">Absent</span>
-													<small class="text-muted">(@assignment.AbsenceReason)</small>
-												}
-												else
-												{
-													<span class="badge bg-warning text-dark">Pending</span>
-												}
+                                                        <!-- Reason Input (Hidden if Attending) -->
+                                                        <input type="text" name="reason_@assignment.Id" id="reason_@assignment.Id" 
+                                                               class="form-control form-control-sm reason-input @(assignment.Status == AssignmentStatus.Absent ? "" : "d-none")" 
+                                                               placeholder="Reason (if absent)" value="@assignment.AbsenceReason" />
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        }
+                                    }
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            }
 
-												<select name="status" class="form-select form-select-sm" style="width: auto;">
-													<option value="@AssignmentStatus.Attending">I will be there</option>
-													<option value="@AssignmentStatus.Absent">I cannot make it</option>
-												</select>
-												<input type="text" name="absenceReason" class="form-control form-control-sm" placeholder="Reason (if absent)" style="width: auto;" />
-												<button type="submit" class="btn btn-sm btn-outline-primary">Update</button>
-											</form>
-										</td>
-									</tr>
-								}
-							}
-						}
-					</tbody>
-				</table>
-			</div>
-		</div>
-	}
+            <!-- SINGLE SAVE BUTTON AT THE BOTTOM -->
+            <div class="d-grid gap-2 mb-5">
+                <button type="submit" class="btn btn-primary btn-lg shadow-sm">Save All Updates</button>
+            </div>
+        </form>
+    }
 </div>
+
+@section Scripts {
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            // Find all the status dropdowns
+            const selects = document.querySelectorAll('.status-select');
+
+            selects.forEach(select => {
+                select.addEventListener('change', function () {
+                    const assignmentId = this.getAttribute('data-assignment-id');
+                    const reasonInput = document.getElementById('reason_' + assignmentId);
+
+                    // If they select "Absent", show the reason box
+                    if (this.value === "Absent") {
+                        reasonInput.classList.remove('d-none');
+                        reasonInput.focus();
+                    } else {
+                        reasonInput.classList.add('d-none');
+                        reasonInput.value = ''; // Clear the reason if they change back to attending
+                    }
+                });
+            });
+        });
+    </script>
+}
