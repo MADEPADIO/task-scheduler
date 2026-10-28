@@ -30,11 +30,6 @@ namespace TaskSchedulerApp.Pages.Account
 			public string? Password { get; set; } = string.Empty;
 		}
 
-		public void OnGet()
-		{
-
-		}
-
 		public async Task<IActionResult> OnPostAsync()
 		{
 			if (!ModelState.IsValid)
@@ -80,7 +75,15 @@ namespace TaskSchedulerApp.Pages.Account
 			//};
 
 			await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(claimsIdentity));
-			return RedirectToPage("/Index");
+
+			if (user.IsAdmin)
+			{
+				return RedirectToPage("/Index");
+			}
+			else
+			{
+				return RedirectToPage("/Member/Index");
+			}
 		}
 
 		// This method is called by Javascript to check if an email belongs to an admin
