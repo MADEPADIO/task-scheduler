@@ -70,10 +70,11 @@
 <ul class="mb-0">
 	@foreach (var absence in Model.RecentAbsences)
 	{
-		<li class="mb-2">
-			<!-- Display the member's name, the date, the session, and the camera they are missing -->
+<li class="mb-2">
+			<!-- Display the member's name, the SERVICE NAME, the date, the session, and the camera they are missing -->
 			<strong>@absence.User.Name</strong> is absent for
-			<strong>@absence.Session.Service.Date.ToString("ddd, MMM dd") (@absence.Session.Name)</strong>
+			<strong>@absence.Session.Service.Name</strong>
+			(@absence.Session.Service.Date.ToString("ddd, MMM dd") - @absence.Session.Name)
 			on <strong>@absence.Camera.Name</strong>.
 			<br />
 			<!-- Display the reason they gave, styled slightly muted -->
