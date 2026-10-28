@@ -8,7 +8,7 @@ using TaskSchedulerApp.Models;
 
 namespace TaskSchedulerApp.Pages.Members
 {
-	[Authorize(Roles = "Admin")]
+	[Authorize]
     public class IndexModel : PageModel
     {
 		private readonly SchedulerContext _context;

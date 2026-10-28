@@ -20,11 +20,7 @@
                 </button>
                 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
 					<ul class="navbar-nav flex-grow-1">
-						<li class="nav-item">
-							<a class="nav-link text-dark" asp-area="" asp-page="/Index">Home</a>
-						</li>
-
-						@if (User.Identity?.IsAuthenticated == true)
+						@if (User.IsInRole("Admin"))
 						{
 							<li class="nav-item">
 								<a class="nav-link text-dark" asp-area="" asp-page="/Index">Dashboard</a>
@@ -38,12 +34,19 @@
 							<li class="nav-item">
 								<a class="nav-link text-dark" asp-area="" asp-page="/Cameras/Index">Cameras</a>
 							</li>
+						}
+						else if (User.Identity?.IsAuthenticated == true)
+						{
 							<li class="nav-item">
-								<a class="nav-link text-dark" asp-area="" asp-page="/Privacy">Privacy</a>
+								<a class="nav-link text-dark" asp-area="" asp-page="/Member/Index">My Schedule</a>
 							</li>
+						}
+
+						@if (User.Identity?.IsAuthenticated == true)
+						{
 							<li class="nav-item ms-auto">
 								<form method="post" asp-page="/Account/Logout" class="d-inline">
-									<button type="submit" class="btn btn-link nav-link text-dark text-decoration-none">Logout</button>
+									<button type="submit" class="btn btn-link nav-link text-dark text-decoration-none">Logout (@User.Identity.Name)</button>
 								</form>
 							</li>
 						}

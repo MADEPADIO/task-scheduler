@@ -26,7 +26,7 @@ namespace TaskSchedulerApp.Pages.Account
 			[Required, EmailAddress]
 			public string Email { get; set; } = string.Empty;
 
-			[Required, DataType(DataType.Password)]
+			[DataType(DataType.Password)]
 			public string Password { get; set; } = string.Empty;
 		}
 
@@ -53,20 +53,14 @@ namespace TaskSchedulerApp.Pages.Account
 			// If they are an admin, they MUST use a password
 			if (user.IsAdmin)
 			{
-				if (string.IsNullOrEmpty(user.PasswordHash) || !BCrypt.Net.BCrypt.Verify(Input.Password, user.PasswordHash))
+				if (string.IsNullOrEmpty(user.PasswordHash) ||
+					!BCrypt.Net.BCrypt.Verify(Input.Password, user.PasswordHash))
 				{
 					ModelState.AddModelError(string.Empty, "Invalid login attempt.");
 					return Page();
 				}
-
 			}
-			else
-			{
-				// NOTE: For now, we only want Admins logging in to build the roster.
-				// We will add the Member passwordless login in Phase 2.
-				ModelState.AddModelError(string.Empty, "Members cannot log in yet. Admin access only.");
-				return Page();
-			}
+			// Members just log in with their email. No password check.
 
 			// Create the user's identity
 			var claims = new List<Claim>
@@ -74,7 +68,7 @@ namespace TaskSchedulerApp.Pages.Account
 				new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
 				new Claim(ClaimTypes.Name, user.Name),
 				new Claim(ClaimTypes.Email, user.Email),
-				new Claim(ClaimTypes.Role, "Admin")
+				new Claim(ClaimTypes.Role, user.IsAdmin ? "Admin" : "Member")
 			};
 
 			var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
@@ -87,6 +81,18 @@ namespace TaskSchedulerApp.Pages.Account
 
 			await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(claimsIdentity));
 			return RedirectToPage("/Index");
+		}
+
+		// This method is called by Javascript to check if an email belongs to an admin
+		public async Task<IActionResult> OnGetCheckAdminAsync(string email)
+		{
+			if (string.IsNullOrWhiteSpace(email))
+			{
+				return new JsonResult(new { isAdmin = false });
+			}
+			var user = await _context.Users.FirstOrDefaultAsync(u => u.Email.ToLower() == email.ToLower());
+
+			return new JsonResult(new { isAdmin = user?.IsAdmin ?? false });
 		}
 	}
 }
