@@ -36,7 +36,8 @@
                         </div>
 
 						<!-- Initially hidden. JS will reveal it if the email is an Admin. -->
-						<div class="mb-3 d-none" id="passwordContainer">
+						<!-- Initially hidden, but if the server returns a validation error, keep it visible -->
+						<div class="mb-3 @(ViewData.ModelState.ContainsKey("Input.Password") || ViewData.ModelState.ContainsKey(string.Empty) ? "" : "d-none")" id="passwordContainer">
 							<label asp-for="Input.Password" class="form-label">Password</label>
 							<input asp-for="Input.Password" class="form-control" id="passwordInput" />
 							<span asp-validation-for="Input.Password" class="text-danger small"></span>
