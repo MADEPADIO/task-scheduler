@@ -21,15 +21,13 @@ namespace TaskSchedulerApp.Pages.Assignments
 		public IList<Camera> ActiveCameras { get; set; } = default!;
 		public IList<User> ActiveMembers { get; set; } = default!;
 
-		// NEW: Binds the ?OverrideRules=true/false from the URL to this property.
-		// When true, the Max 2 Services rule is ignored in the UI dropdowns.
 		[BindProperty(SupportsGet = true)]
 		public bool OverrideRules { get; set; } = false;
 
-		// This will hold the existing assignments for the view to pre-select dropdowns
-		// Key: SessionId, CameraId. Value: List of UserIds who CANNOT be assigned to this cell
 		public Dictionary<(Guid, int), HashSet<Guid>> DisabledUsers { get; set; } = new();
-		public Dictionary<Guid, Dictionary<int, Guid?>> ExistingAssignments { get; set; } = new();
+
+		// CHANGED: Now holds the full Assignment object so we can read the Status (Pending, Attending, Absent)
+		public Dictionary<(Guid, int), Assignment?> ExistingAssignments { get; set; } = new();
 
 		public async Task<IActionResult> OnGetAsync(Guid id)
 		{
@@ -50,7 +48,7 @@ namespace TaskSchedulerApp.Pages.Assignments
 			ActiveCameras = await _context.Cameras.Where(c => c.IsActive).OrderBy(c => c.Name).ToListAsync();
 			ActiveMembers = await _context.Users.Where(u => u.IsActive).OrderBy(u => u.Name).ToListAsync();
 
-			// 1. Get all assignments for THIS service to populate the dropdowns
+			// 1. Get all assignments for THIS service
 			var currentServiceAssignments = await _context.Assignments
 				.Where(a => a.Session.ServiceId == id)
 				.ToListAsync();
@@ -58,11 +56,12 @@ namespace TaskSchedulerApp.Pages.Assignments
 			ExistingAssignments.Clear();
 			foreach (var session in Service.Sessions)
 			{
-				ExistingAssignments[session.Id] = new Dictionary<int, Guid?>();
 				foreach (var cam in ActiveCameras)
 				{
+					// Find the assignment for this specific session and camera
 					var assignment = currentServiceAssignments.FirstOrDefault(a => a.SessionId == session.Id && a.CameraId == cam.Id);
-					ExistingAssignments[session.Id][cam.Id] = assignment?.UserId;
+					// Store the whole assignment object (or null if unassigned)
+					ExistingAssignments[(session.Id, cam.Id)] = assignment;
 				}
 			}
 
@@ -72,17 +71,14 @@ namespace TaskSchedulerApp.Pages.Assignments
 				.Where(a => a.Session.Service.Date == Service.Date && a.Session.ServiceId != Service.Id)
 				.ToListAsync();
 
-			// Count distinct services each user is working today
 			var userServiceCount = otherServicesToday
 				.GroupBy(a => a.UserId)
 				.ToDictionary(g => g.Key, g => g.Select(a => a.Session.ServiceId).Distinct().Count());
 
-			// Track which cameras each user has used today
 			var userCameras = otherServicesToday
 				.GroupBy(a => a.UserId)
 				.ToDictionary(g => g.Key, g => g.Select(a => a.CameraId).ToHashSet());
 
-			// Users already working in THIS service (so we don't block them from adding more sessions here)
 			var usersInCurrentService = currentServiceAssignments.Select(a => a.UserId).ToHashSet();
 
 			DisabledUsers.Clear();
@@ -96,19 +92,17 @@ namespace TaskSchedulerApp.Pages.Assignments
 					{
 						bool isUserInCurrentService = usersInCurrentService.Contains(member.Id);
 
-						// RULE 1: Max 2 Services per day
-						// We check !OverrideRules here. If the Admin flipped the switch, we skip this check.
+						// RULE 1: Max 2 Services
 						if (!isUserInCurrentService && !OverrideRules)
 						{
 							if (userServiceCount.TryGetValue(member.Id, out int count) && count >= 2)
 							{
 								disabledList.Add(member.Id);
-								continue; // No need to check camera rule if they are already maxed out
+								continue;
 							}
 						}
 
-						// RULE 2: Same camera across services on the same day
-						// We now check !OverrideRules here as well. If the Admin flips the switch, she can bypass this too.
+						// RULE 2: Same camera
 						if (!OverrideRules && userCameras.TryGetValue(member.Id, out var cams) && cams.Contains(cam.Id))
 						{
 							disabledList.Add(member.Id);
@@ -121,8 +115,6 @@ namespace TaskSchedulerApp.Pages.Assignments
 
 		public async Task<IActionResult> OnPostSaveAsync(Guid serviceId)
 		{
-			// The validation logic here catches rogue submissions and prevents unique constraint crashes.
-
 			var service = await _context.Services
 				.Include(s => s.Sessions)
 				.FirstOrDefaultAsync(m => m.Id == serviceId);
@@ -132,7 +124,6 @@ namespace TaskSchedulerApp.Pages.Assignments
 			var formKeys = Request.Form.Keys.Where(k => k.StartsWith("assign_")).ToList();
 			var submittedAssignments = new List<(Guid SessionId, int CameraId, Guid? UserId)>();
 
-			// 1. Parse the form data
 			foreach (var key in formKeys)
 			{
 				var parts = key.Split('_');
@@ -144,7 +135,6 @@ namespace TaskSchedulerApp.Pages.Assignments
 				}
 			}
 
-			// 2. Validate: Check if the same user is assigned to multiple cameras in the SAME session
 			var duplicate = submittedAssignments
 				.Where(a => a.UserId.HasValue)
 				.GroupBy(a => new { a.SessionId, a.UserId })
@@ -165,7 +155,6 @@ namespace TaskSchedulerApp.Pages.Assignments
 				.Where(a => sessionIds.Contains(a.SessionId))
 				.ToListAsync();
 
-			// 3. First Pass: Remove assignments that were cleared or changed (prevents unique constraint crash on swaps)
 			var toRemove = new List<Assignment>();
 			foreach (var sub in submittedAssignments)
 			{
@@ -179,15 +168,13 @@ namespace TaskSchedulerApp.Pages.Assignments
 			if (toRemove.Any())
 			{
 				_context.Assignments.RemoveRange(toRemove);
-				await _context.SaveChangesAsync(); // Flush deletes first
+				await _context.SaveChangesAsync();
 			}
 
-			// 4. Second Pass: Add new assignments
 			foreach (var sub in submittedAssignments)
 			{
-				if (!sub.UserId.HasValue) continue; // Ignore unassigned
+				if (!sub.UserId.HasValue) continue;
 
-				// We already deleted the ones that changed, so if it exists now, it didn't change.
 				var stillExists = await _context.Assignments.AnyAsync(a => a.SessionId == sub.SessionId && a.CameraId == sub.CameraId);
 
 				if (!stillExists)
@@ -201,7 +188,6 @@ namespace TaskSchedulerApp.Pages.Assignments
 						Status = AssignmentStatus.Pending
 					});
 
-					// Generate Notification for the member
 					var session = service.Sessions.First(s => s.Id == sub.SessionId);
 					var camera = await _context.Cameras.FindAsync(sub.CameraId);
 

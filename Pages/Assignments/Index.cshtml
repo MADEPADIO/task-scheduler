@@ -1,4 +1,5 @@
 ﻿@page "{id:guid}"
+@using TaskSchedulerApp.Models
 @model TaskSchedulerApp.Pages.Assignments.IndexModel
 @{
 	ViewData["Title"] = $"Assignments - {Model.Service.Name}";
@@ -32,15 +33,13 @@
 		<div class="card-body p-0">
 			<form method="post" asp-page-handler="Save" asp-route-serviceId="@Model.Service.Id">
 
-				<!-- NEW: Override Toggle Switch -->
 				<div class="card-header bg-white d-flex align-items-center py-3 border-bottom">
 					<div class="form-check form-switch mb-0">
-						<!-- The JS here reloads the page and appends ?OverrideRules=true or false to the URL -->
 						<input class="form-check-input" type="checkbox" role="switch" id="overrideSwitch"
 						@(Model.OverrideRules ? "checked" : "")
 							   onchange="window.location.href='?id=@Model.Service.Id&OverrideRules=' + this.checked">
 						<label class="form-check-label fw-bold text-danger" for="overrideSwitch">
-							Override Max 2 Services Rule or Camera Rule
+							Override Max 2 Services Rule
 						</label>
 						<span class="text-muted small ms-2">(Use only for emergencies)</span>
 					</div>
@@ -67,10 +66,25 @@
 									</td>
 									@foreach (var cam in Model.ActiveCameras)
 									{
-										var currentUserId = Model.ExistingAssignments[session.Id][cam.Id];
+										// Get the full assignment object (can be null if unassigned)
+										var existingAssignment = Model.ExistingAssignments[(session.Id, cam.Id)];
+										var currentUserId = existingAssignment?.UserId;
 										var disabledList = Model.DisabledUsers[(session.Id, cam.Id)];
 
-										<td>
+										// NEW: Determine the visual cue class based on status
+										string cellClass = "";
+										if (existingAssignment != null)
+										{
+											cellClass = existingAssignment.Status switch
+											{
+												AssignmentStatus.Attending => "table-success", // Green
+												AssignmentStatus.Absent => "table-danger",     // Red
+												AssignmentStatus.Pending => "table-warning",   // Yellow
+												_ => ""
+											};
+										}
+
+										<td class="@cellClass">
 											<select name="assign_@(session.Id)_@(cam.Id)" class="form-select form-select-sm">
 												<option value="">-- Unassigned --</option>
 												@foreach (var member in Model.ActiveMembers)
@@ -80,8 +94,6 @@
 
 													if (isSelected)
 													{
-														// If they are selected BUT disabled, it means they are violating the rules.
-														// We do NOT add disabled="disabled" here, so the Admin can select someone else to replace them.
 														<option value="@member.Id" selected title="Rule Violation: Max 2 services or same camera">
 															@member.Name (Rule Violation)
 														</option>
