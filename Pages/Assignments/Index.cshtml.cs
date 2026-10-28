@@ -200,6 +200,18 @@ namespace TaskSchedulerApp.Pages.Assignments
 						UserId = sub.UserId.Value,
 						Status = AssignmentStatus.Pending
 					});
+
+					// Generate Notification for the member
+					var session = service.Sessions.First(s => s.Id == sub.SessionId);
+					var camera = await _context.Cameras.FindAsync(sub.CameraId);
+
+					_context.Notifications.Add(new Notification
+					{
+						Id = Guid.NewGuid(),
+						UserId = sub.UserId.Value,
+						Message = $"You have been assigned to {camera?.Name} for {session.Name} on {service.Date.ToString("MMM dd")}.",
+						CreatedAt = DateTime.UtcNow
+					});
 				}
 			}
 

@@ -48,10 +48,10 @@ namespace TaskSchedulerApp.Pages.Account
 			// If they are an admin, they MUST use a password
 			if (user.IsAdmin)
 			{
-				if (string.IsNullOrEmpty(user.PasswordHash) ||
+				if (string.IsNullOrEmpty(Input.Password) || string.IsNullOrEmpty(user.PasswordHash) ||
 					!BCrypt.Net.BCrypt.Verify(Input.Password, user.PasswordHash))
 				{
-					ModelState.AddModelError(string.Empty, "Invalid login attempt.");
+					ModelState.AddModelError(string.Empty, "Invalid login attempt. Password is required for admins.");
 					return Page();
 				}
 			}

@@ -73,6 +73,25 @@ namespace TaskSchedulerApp.Pages.Member
 			{
 				assignment.Status = status;
 				assignment.AbsenceReason = status == AssignmentStatus.Absent ? absenceReason : null;
+
+				// Notify Admins if they mark absent
+				if (status == AssignmentStatus.Absent)
+				{
+					var user = await _context.Users.FindAsync(userId);
+					var admins = await _context.Users.Where(u => u.IsAdmin && u.IsActive).ToListAsync();
+
+					foreach (var admin in admins)
+					{
+						_context.Notifications.Add(new Notification
+						{
+							Id = Guid.NewGuid(),
+							UserId = admin.Id,
+							Message = $"{user?.Name} marked absent for {assignment.Session.Name} ({assignment.Camera.Name}). Reason: {absenceReason}",
+							CreatedAt = DateTime.UtcNow
+						});
+					}
+				}
+
 				await _context.SaveChangesAsync();
 				TempData["Success"] = "Your status has been updated.";
 			}
