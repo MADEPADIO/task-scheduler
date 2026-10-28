@@ -71,15 +71,15 @@
 										var currentUserId = existingAssignment?.UserId;
 										var disabledList = Model.DisabledUsers[(session.Id, cam.Id)];
 
-										// NEW: Determine the visual cue class based on status
+										// NEW: Use standard Bootstrap background colors with opacity to make them stronger
 										string cellClass = "";
 										if (existingAssignment != null)
 										{
 											cellClass = existingAssignment.Status switch
 											{
-												AssignmentStatus.Attending => "table-success", // Green
-												AssignmentStatus.Absent => "table-danger",     // Red
-												AssignmentStatus.Pending => "table-warning",   // Yellow
+												AssignmentStatus.Attending => "bg-success bg-opacity-25", // Stronger Green
+												AssignmentStatus.Absent => "bg-danger bg-opacity-25",     // Stronger Red
+												AssignmentStatus.Pending => "bg-warning bg-opacity-25",   // Stronger Yellow
 												_ => ""
 											};
 										}
@@ -92,10 +92,14 @@
 													bool isSelected = currentUserId == member.Id;
 													bool isDisabled = disabledList.Contains(member.Id);
 
+													// NEW FIX: Only show the violation text if they are actually disabled
+													string displayText = (isSelected && isDisabled) ? $"{member.Name} (Rule Violation)" : member.Name;
+													string titleText = (isSelected && isDisabled) ? "Rule Violation: Max 2 services or same camera" : "";
+
 													if (isSelected)
 													{
-														<option value="@member.Id" selected title="Rule Violation: Max 2 services or same camera">
-															@member.Name (Rule Violation)
+														<option value="@member.Id" selected title="@titleText">
+															@displayText
 														</option>
 													}
 													else
