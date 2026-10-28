@@ -44,9 +44,27 @@
 
 						@if (User.Identity?.IsAuthenticated == true)
 						{
+							<!-- Notification Bell -->
+							<li class="nav-item dropdown me-3">
+								<a class="nav-link text-dark position-relative" href="#" id="notificationDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+									<!-- SVG Bell Icon -->
+									<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-bell-fill" viewBox="0 0 16 16">
+										<path d="M8 16a2 2 0 0 0 2-2H6a2 2 0 0 0 2 2zm.995-14.901a1 1 0 1 0-1.99 0A5.002 5.002 0 0 0 3 6c0 1.098-.5 6-2 7h14c-1.5-1-2-5.902-2-7 0-2.42-1.72-4.44-4.005-4.901z" />
+									</svg>
+									<!-- Red Badge (Hidden by default) -->
+									<span id="notificationBadge" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger d-none" style="font-size: 0.65rem;">
+										0
+									</span>
+								</a>
+								<!-- Dropdown Menu -->
+								<ul class="dropdown-menu dropdown-menu-end shadow" aria-labelledby="notificationDropdown" id="notificationList" style="width: 300px; max-height: 400px; overflow-y: auto;">
+									<li><h6 class="dropdown-header">Notifications</h6></li>
+									<li><a class="dropdown-item text-muted" href="#">No new notifications</a></li>
+								</ul>
+							</li>
 							<li class="nav-item ms-auto">
 								<form method="post" asp-page="/Account/Logout" class="d-inline">
-									<button type="submit" class="btn btn-link nav-link text-dark text-decoration-none">Logout (@User.Identity.Name)</button>
+									<button type="submit" class="btn btn-link nav-link text-dark text-decoration-none">Logout</button>
 								</form>
 							</li>
 						}
@@ -78,5 +96,72 @@
     <script src="~/js/site.js" asp-append-version="true"></script>
 
     @await RenderSectionAsync("Scripts", required: false)
+	<!-- Hidden form to get the security token for AJAX posts -->
+	<form id="afTokenForm" method="post" style="display:none;">
+		@Html.AntiForgeryToken()
+	</form>
+
+	<script>
+			document.addEventListener("DOMContentLoaded", function() {
+				// Only run if the user is logged in (the badge exists)
+				const badge = document.getElementById('notificationBadge');
+				if (!badge) return;
+
+				const list = document.getElementById('notificationList');
+				const dropdown = document.getElementById('notificationDropdown');
+
+				async function fetchNotifications() {
+					try {
+						const response = await fetch('/Notifications?handler=Unread');
+						const data = await response.json();
+
+						if (data.count > 0) {
+							badge.textContent = data.count;
+							badge.classList.remove('d-none');
+
+							// Build the dropdown items
+							let html = '<li><h6 class="dropdown-header">Notifications</h6></li>';
+							data.items.forEach(item => {
+								html += `
+											<li>
+												<a class="dropdown-item text-wrap small" href="#">
+													${item.message}
+													<div class="text-muted" style="font-size: 0.75rem;">${item.time}</div>
+												</a>
+											</li>
+											<li><hr class="dropdown-divider"></li>
+										`;
+							});
+							list.innerHTML = html;
+						} else {
+							badge.classList.add('d-none');
+							list.innerHTML = '<li><h6 class="dropdown-header">Notifications</h6></li><li><a class="dropdown-item text-muted" href="#">No new notifications</a></li>';
+						}
+					} catch (e) {
+						console.error("Failed to load notifications", e);
+					}
+				}
+
+				// Fetch immediately, then every 30 seconds
+				fetchNotifications();
+				setInterval(fetchNotifications, 30000);
+
+				// Mark as read when the dropdown is clicked
+				dropdown.addEventListener('click', async function() {
+					if (badge.classList.contains('d-none')) return; // Don't bother if already read
+
+					const token = document.querySelector('input[name="__RequestVerificationToken"]').value;
+
+					await fetch('/Notifications?handler=MarkRead', {
+						method: 'POST',
+						headers: {
+							'RequestVerificationToken': token
+						}
+					});
+
+					badge.classList.add('d-none');
+				});
+			});
+	</script>
 </body>
 </html>
