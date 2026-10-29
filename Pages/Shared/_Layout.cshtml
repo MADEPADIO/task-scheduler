@@ -15,9 +15,14 @@
         <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-dark border-bottom mb-4">
             <div class="container">
                 <a class="navbar-brand d-flex align-items-center" asp-area="" asp-page="/Index">
-                    <img src="https://www.joincci.org/logo.svg" alt="CCI Logo" style="height: 35px; margin-right: 12px;" />
-                    <span class="text-white fw-bold d-none d-sm-inline" style="font-size: 1.2rem;">Video Unit</span>
-                </a>
+					<!-- The logo is wrapped in a div that crops the bottom 8px -->
+					<div style="height: 24px; overflow: hidden; display: flex; align-items: flex-start; margin-right: 12px;">
+						<img src="~/images/cci-logo.svg" alt="CCI Logo" style="height: 32px;" />
+					</div>
+					<span class="text-white fw-bold d-none d-sm-inline" style="font-size: 1.1rem; letter-spacing: 0.5px;">
+						Ago Campus Videography Unit
+					</span>
+				</a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
                         aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
