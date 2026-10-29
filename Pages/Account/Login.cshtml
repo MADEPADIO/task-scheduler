@@ -52,56 +52,72 @@
 </div>
 
 @section Scripts {
-	<partial name="_ValidationScriptsPartial" />
+    <partial name="_ValidationScriptsPartial" />
+    
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const emailInput = document.getElementById("emailInput");
+            const passwordContainer = document.getElementById("passwordContainer");
+            const passwordInput = document.getElementById("passwordInput");
+            const spinner = document.getElementById("emailSpinner");
+            const checkmark = document.getElementById("emailCheck");
 
-	<script>
-		document.addEventListener("DOMContentLoaded", function() {
-			const emailInput = document.getElementById("emailInput");
-			const passwordContainer = document.getElementById("passwordContainer");
-			const passwordInput = document.getElementById("passwordInput");
-			const spinner = document.getElementById("emailSpinner");
-			const checkmark = document.getElementById("emailCheck");
+            let debounceTimer;
+            let abortController;
 
-			emailInput.addEventListener("blur", async function() {
-				const email = this.value;
+            // Use "input" instead of "blur" so it checks as they type
+            emailInput.addEventListener("input", function () {
+                const email = this.value;
+                
+                // Clear previous timer and abort any pending network requests
+                clearTimeout(debounceTimer);
+                if (abortController) {
+                    abortController.abort(); 
+                }
 
-				// Reset states
-				passwordContainer.classList.add("d-none");
-				passwordInput.value = "";
-				checkmark.classList.add("d-none");
+                // Reset UI immediately on typing
+                passwordContainer.classList.add("d-none");
+                passwordInput.value = "";
+                checkmark.classList.add("d-none");
+                spinner.classList.add("d-none");
 
-				// If email is empty, stop.
-				if (!email) {
-					spinner.classList.add("d-none");
-					return;
-				}
+                // Don't check until it looks like a valid email
+                if (!email.includes('@@') || email.length < 5) {
+                    return;
+                }
 
-				// 1. Show the spinner
-				spinner.classList.remove("d-none");
+                // Wait 500ms after they stop typing before sending the request
+                debounceTimer = setTimeout(async () => {
+                    spinner.classList.remove("d-none");
+                    
+                    // AbortController allows us to cancel the request if they type another letter
+                    abortController = new AbortController();
 
-				try {
-					// 2. Ask the server if this email is an admin
-					const response = await fetch(`/Account/Login?handler=CheckAdmin&email=${encodeURIComponent(email)}`);
-					const data = await response.json();
+                    try {
+                        const response = await fetch(`/Account/Login?handler=CheckAdmin&email=${encodeURIComponent(email)}`, {
+                            signal: abortController.signal
+                        });
+                        const data = await response.json();
 
-					// 3. Hide spinner, show checkmark
-					spinner.classList.add("d-none");
-					checkmark.classList.remove("d-none");
+                        spinner.classList.add("d-none");
+                        checkmark.classList.remove("d-none");
 
-					// 4. Reveal password if Admin
-					if (data.isAdmin) {
-						passwordContainer.classList.remove("d-none");
-						passwordInput.focus();
-						passwordInput.required = true;
-					} else {
-						passwordInput.required = false;
-					}
-				} catch (error) {
-					// If the network fails, hide spinner
-					spinner.classList.add("d-none");
-					console.error("Error checking email", error);
-				}
-			});
-		});
-	</script>
+                        if (data.isAdmin) {
+                            passwordContainer.classList.remove("d-none");
+                            passwordInput.focus();
+                            passwordInput.required = true;
+                        } else {
+                            passwordInput.required = false;
+                        }
+                    } catch (error) {
+                        // Ignore AbortErrors (happens when the user types another key)
+                        if (error.name !== 'AbortError') {
+                            spinner.classList.add("d-none");
+                            console.error("Error checking email", error);
+                        }
+                    }
+                }, 500); // 500ms debounce delay
+            });
+        });
+    </script>
 }

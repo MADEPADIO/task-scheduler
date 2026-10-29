@@ -103,7 +103,7 @@ namespace TaskSchedulerApp.Pages.Member
 									Id = Guid.NewGuid(),
 									UserId = admin.Id,
 									Message = $"{user?.Name} marked absent for {sessionName} ({cameraName}). Reason: {reason}",
-									LinkUrl = $"/Assignments/Index/{assignment.Session.ServiceId}",
+									LinkUrl = $"/Assignments/Index/{assignment.Session!.ServiceId}",
 									CreatedAt = DateTime.UtcNow
 								});
 							}

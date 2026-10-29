@@ -110,9 +110,12 @@ namespace TaskSchedulerApp.Pages.Account
 			{
 				return new JsonResult(new { isAdmin = false });
 			}
-			var user = await _context.Users.FirstOrDefaultAsync(u => u.Email.ToLower() == email.ToLower());
 
-			return new JsonResult(new { isAdmin = user?.IsAdmin ?? false });
+			var isAdmin = await _context.Users.AnyAsync(u => u.Email.ToLower() == email.ToLower() && u.IsAdmin);
+
+			//var user = await _context.Users.FirstOrDefaultAsync(u => u.Email.ToLower() == email.ToLower());
+
+			return new JsonResult(new { isAdmin });
 		}
 	}
 }
