@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Npgsql;
 using TaskSchedulerApp.Data;
 using TaskSchedulerApp.Pages.Filters;
 
@@ -12,12 +13,35 @@ namespace TaskSchedulerApp
 		{
 			var builder = WebApplication.CreateBuilder(args);
 
+			var connectionString = builder.Configuration.GetConnectionString("Default");
+
+			var databaseUrl = Environment.GetEnvironmentVariable("DATABASE_URL");
+
+			if (!string.IsNullOrEmpty(databaseUrl))
+			{
+				// Parse the URI from Railway into a standard Npgsql connection string
+
+				var uri = new Uri(databaseUrl);
+				var userInfo = uri.UserInfo.Split(':');
+
+				var npgsqlBuilder = new NpgsqlConnectionStringBuilder
+				{
+					Host = uri.Host,
+					Port = uri.Port,
+					Username = userInfo[0],
+					Password = userInfo[1],
+					Database = uri.AbsolutePath.TrimStart('/'),
+					SslMode = SslMode.Require
+				};
+				connectionString = npgsqlBuilder.ToString();
+			}
+
 			// Add services to the container.
 			builder.Services.AddSingleton<AuditInterceptor>();
 
 			builder.Services.AddDbContext<SchedulerContext>((serviceProvider, options) =>
 			{
-				options.UseNpgsql(builder.Configuration.GetConnectionString("Default"));
+				options.UseNpgsql(connectionString);
 				options.AddInterceptors(serviceProvider.GetRequiredService<AuditInterceptor>());
 				});
 
