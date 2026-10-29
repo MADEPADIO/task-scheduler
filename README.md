@@ -32,5 +32,6 @@ UPDATE "Users"
 SET "PasswordHash" = 'PASTE_YOUR_HASH_HERE', 
     "MustChangePassword" = false 
 WHERE "Email" = 'your-admin-email@example.com';
+```
 ## ⚠️ Security Note
 Member login is intentionally passwordless to ensure zero friction for church volunteers. Anyone with a member's email can log in as them. This is an accepted trade-off for a closed, internal volunteer tool.
