@@ -66,17 +66,14 @@ namespace TaskSchedulerApp.Data
 				entity.HasKey(a => a.Id);
 
 				entity.Property(a => a.Status)
-					  .HasColumnType("xid")
-					  .ValueGeneratedOnAddOrUpdate()
-					  .IsConcurrencyToken();
+					  .HasConversion<string>()
+					  .HasMaxLength(20)
+					  .HasDefaultValue(AssignmentStatus.Pending);
 
 				entity.Property(a => a.AbsenceReason).HasMaxLength(500);
 
 				// Map the shadow property "xmin" as a row version for concurrency control
-				entity.Property(a => a.Status)
-					  .HasConversion<string>()
-					  .HasMaxLength(20)
-					  .HasDefaultValue(AssignmentStatus.Pending);
+				entity.Property(a => a.Version).IsRowVersion();
 
 				// Three explicit FKs — do not rely on convention here
 				entity.HasOne(a => a.Session)

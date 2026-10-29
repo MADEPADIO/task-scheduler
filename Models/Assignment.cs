@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
+﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace TaskSchedulerApp.Models
 {
@@ -13,6 +14,10 @@ namespace TaskSchedulerApp.Models
 
 		// Nullable - only populated when Status == Absent
 		public string? AbsenceReason { get; set; }
+
+		// Maps to PosgreSQL
+		[Timestamp]
+		public uint Version { get; set; }
 
 		// Navigation
 		public Session Session { get; set; } = null!;
