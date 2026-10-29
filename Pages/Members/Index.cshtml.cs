@@ -20,13 +20,25 @@ namespace TaskSchedulerApp.Pages.Members
 
 		public IList<User> Members { get; set; } = default!;
 
+		// Binds the search string from the URL
+		[BindProperty(SupportsGet = true)]
+		public string? SearchTerm { get; set; }
+
 		public async Task OnGetAsync()
 		{
+			var query = _context.Users.Where(u => u.IsActive).AsQueryable();
+
+			if (!string.IsNullOrWhiteSpace(SearchTerm))
+			{
+				var search = SearchTerm.ToLower();
+				query = query.Where(u => u.Name.ToLower().Contains(search) || u.Email.ToLower().Contains(search));
+			}
 			// Load all users, order by Name
-			Members = await _context.Users
-				.Where(u => u.IsActive)
-				.OrderBy(u => u.Name)
-				.ToListAsync();
+			//Members = await _context.Users
+			//	.Where(u => u.IsActive)
+			//	.OrderBy(u => u.Name)
+			//	.ToListAsync();
+			Members = await query.OrderBy(u => u.Name).ToListAsync();
 		}
 
 		// Inline toggle for Admin status

@@ -13,6 +13,7 @@ namespace TaskSchedulerApp.Data
 		public DbSet<Session> Sessions => Set<Session>();
 		public DbSet<Assignment> Assignments => Set<Assignment>();
 		public DbSet<Notification> Notifications => Set<Notification>();
+		public DbSet<AuditLog> AuditLogs => Set<AuditLog>();
 
 		protected override void OnModelCreating(ModelBuilder modelBuilder)
 		{
@@ -114,6 +115,16 @@ namespace TaskSchedulerApp.Data
 					  .WithMany(u => u.Notifications)
 					  .HasForeignKey(n => n.UserId)
 					  .OnDelete(DeleteBehavior.Cascade);
+			});
+
+			// ----- AuditLog -----
+			modelBuilder.Entity<AuditLog>(entity =>
+			{
+				entity.HasKey(a => a.Id);
+				entity.Property(a => a.Action).IsRequired().HasMaxLength(50);
+				entity.Property(a => a.EntityName).IsRequired().HasMaxLength(100);
+				entity.Property(a => a.Details).HasMaxLength(500);
+				entity.Property(a => a.Timestamp).HasDefaultValueSql("CURRENT_TIMESTAMP");
 			});
 		}
 	}

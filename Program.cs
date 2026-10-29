@@ -13,7 +13,14 @@ namespace TaskSchedulerApp
 			var builder = WebApplication.CreateBuilder(args);
 
 			// Add services to the container.
-			builder.Services.AddDbContext<SchedulerContext>(options => options.UseNpgsql(builder.Configuration.GetConnectionString("Default")));
+			builder.Services.AddSingleton<AuditInterceptor>();
+
+			builder.Services.AddDbContext<SchedulerContext>((serviceProvider, options) =>
+			{
+				options.UseNpgsql(builder.Configuration.GetConnectionString("Default"));
+				options.AddInterceptors(serviceProvider.GetRequiredService<AuditInterceptor>());
+				});
+
 			builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
 				.AddCookie(options =>
 				{
