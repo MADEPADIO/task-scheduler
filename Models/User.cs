@@ -14,6 +14,8 @@ namespace TaskSchedulerApp.Models
 		public string? PasswordHash { get; set; }
 		public bool IsAdmin { get; set; }
 
+		public bool MustChangePassword { get; set; } = false;
+
 		// Soft delete flag
 		public bool IsActive { get; set; } = true;
 

@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using TaskSchedulerApp.Data;
+using TaskSchedulerApp.Pages.Filters;
 
 namespace TaskSchedulerApp
 {
@@ -21,6 +23,12 @@ namespace TaskSchedulerApp
 				});
 			builder.Services.AddAuthorization();
 			builder.Services.AddRazorPages();
+			builder.Services.Configure<MvcOptions>(options =>
+			{
+				options.Filters.Add<MustChangePasswordFilter>();
+
+			});
+
 
 			var app = builder.Build();
 

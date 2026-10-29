@@ -98,6 +98,8 @@ namespace TaskSchedulerApp.Pages.Members
 				// Hash it and save it to the database
 				user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(tempPassword);
 
+				user.MustChangePassword = true;
+
 				await _context.SaveChangesAsync();
 
 				TempData["TempPassword"] = $"Temporary password for {user.Name}: {tempPassword}";

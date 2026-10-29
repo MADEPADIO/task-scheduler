@@ -80,7 +80,8 @@ namespace TaskSchedulerApp.Pages.Account
 				new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
 				new Claim(ClaimTypes.Name, user.Name),
 				new Claim(ClaimTypes.Email, user.Email),
-				new Claim(ClaimTypes.Role, user.IsAdmin ? "Admin" : "Member")
+				new Claim(ClaimTypes.Role, user.IsAdmin ? "Admin" : "Member"),
+				new Claim("MustChangePassword", user.MustChangePassword.ToString())
 			};
 
 			var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
@@ -92,6 +93,11 @@ namespace TaskSchedulerApp.Pages.Account
 			//};
 
 			await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(claimsIdentity));
+
+			if (user.MustChangePassword)
+			{
+				return RedirectToPage("/Account/ChangePassword");
+			}
 
 			if (user.IsAdmin)
 			{
