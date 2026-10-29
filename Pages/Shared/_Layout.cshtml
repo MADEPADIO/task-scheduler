@@ -22,8 +22,9 @@
 					<ul class="navbar-nav flex-grow-1">
 						@if (User.IsInRole("Admin"))
 						{
+							<!-- ADMIN LINKS -->
 							<li class="nav-item">
-								<a class="nav-link text-dark" asp-area="" asp-page="/Index">Dashboard</a>
+								<a class="nav-link text-dark" asp-area="" asp-page="/Index">Admin Dashboard</a>
 							</li>
 							<li class="nav-item">
 								<a class="nav-link text-dark" asp-area="" asp-page="/Services/Index">Services</a>
@@ -35,33 +36,17 @@
 								<a class="nav-link text-dark" asp-area="" asp-page="/Cameras/Index">Cameras</a>
 							</li>
 						}
-						else if (User.Identity?.IsAuthenticated == true)
+
+						@if (User.Identity?.IsAuthenticated == true)
 						{
+							<!-- EVERYONE (Admin or Member) GETS THIS LINK -->
 							<li class="nav-item">
-								<a class="nav-link text-dark" asp-area="" asp-page="/Member/Index">My Schedule</a>
+								<a class="nav-link text-primary fw-bold" asp-area="" asp-page="/Member/Index">My Schedule</a>
 							</li>
 						}
 
 						@if (User.Identity?.IsAuthenticated == true)
 						{
-							<!-- Notification Bell -->
-							<li class="nav-item dropdown me-3">
-								<a class="nav-link text-dark position-relative" href="#" id="notificationDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-									<!-- SVG Bell Icon -->
-									<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-bell-fill" viewBox="0 0 16 16">
-										<path d="M8 16a2 2 0 0 0 2-2H6a2 2 0 0 0 2 2zm.995-14.901a1 1 0 1 0-1.99 0A5.002 5.002 0 0 0 3 6c0 1.098-.5 6-2 7h14c-1.5-1-2-5.902-2-7 0-2.42-1.72-4.44-4.005-4.901z" />
-									</svg>
-									<!-- Red Badge (Hidden by default) -->
-									<span id="notificationBadge" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger d-none" style="font-size: 0.65rem;">
-										0
-									</span>
-								</a>
-								<!-- Dropdown Menu -->
-								<ul class="dropdown-menu dropdown-menu-end shadow" aria-labelledby="notificationDropdown" id="notificationList" style="width: 300px; max-height: 400px; overflow-y: auto;">
-									<li><h6 class="dropdown-header">Notifications</h6></li>
-									<li><a class="dropdown-item text-muted" href="#">No new notifications</a></li>
-								</ul>
-							</li>
 							<li class="nav-item dropdown ms-auto">
 								<a class="nav-link dropdown-toggle text-dark" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
 									@User.Identity?.Name
@@ -86,7 +71,7 @@
 							</li>
 						}
 					</ul>
-                </div>
+				</div>
             </div>
         </nav>
     </header>
