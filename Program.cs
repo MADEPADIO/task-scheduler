@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -58,6 +59,7 @@ namespace TaskSchedulerApp
 				});
 			builder.Services.AddAuthorization();
 			builder.Services.AddRazorPages();
+			builder.Services.AddDataProtection().PersistKeysToFileSystem(new DirectoryInfo(@"/app/DataProtection-Keys"));
 			builder.Services.Configure<MvcOptions>(options =>
 			{
 				options.Filters.Add<MustChangePasswordFilter>();
