@@ -1,66 +1,54 @@
-﻿@import url('https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,300;0,400;0,700;0,900;1,400&display=swap');
+﻿@import url('https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,200..800&family=Figtree:ital,wght@0,300..900;1,300..900&display=swap');
 
 :root {
-	--cci-red: #DF4E4E;
-	--cci-red-hover: #c43d3d;
-	--cci-black: #111111;
-	--cci-dark-grey: #4C4C4C;
-	--cci-light-bg: #f4f6f8;
+	/* Rabium Palette */
+	--ember: #C2410C;
+	--ember-hover: #9A3309;
+	--flame: #FED7AA;
+	--paper: #F5F4F2;
+	--ink: #18181B;
+	--leaf: #15803D;
+	--leaf-light: #dcfce7;
+	--grey-light: #e4e4e7;
+	--grey-mid: #71717a;
+	/* Bootstrap Overrides */
+	--bs-body-bg: var(--paper);
+	--bs-body-color: var(--ink);
+	--bs-primary: var(--ember);
+	--bs-font-sans-serif: 'Figtree', sans-serif;
 }
 
 body {
-	font-family: 'Lato', sans-serif;
-	background-color: var(--cci-light-bg);
-	color: var(--cci-dark-grey);
+	font-family: 'Figtree', sans-serif;
+	background-color: var(--paper);
+	color: var(--ink);
 	-webkit-font-smoothing: antialiased;
 }
 
-h1, h2, h3, h4, h5, h6 {
+h1, h2, h3, h4, h5, h6, .display-5, .display-6 {
+	font-family: 'Bricolage Grotesque', sans-serif;
 	font-weight: 700;
-	color: var(--cci-black);
+	color: var(--ink);
 	letter-spacing: -0.5px;
 }
 
 /* Cards */
 .card {
-	border: none;
-	border-radius: 12px;
-	box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+	background-color: #ffffff;
+	border: 1px solid var(--grey-light);
+	border-radius: 16px;
+	box-shadow: 0 4px 20px rgba(0, 0, 0, 0.02);
 	margin-bottom: 1.5rem;
 }
 
 .card-header {
-	background-color: #fff;
-	border-bottom: 1px solid #eee;
-	border-radius: 12px 12px 0 0 !important;
-	padding: 1.25rem;
-	font-weight: 700;
+	background-color: #ffffff;
+	border-bottom: 1px solid var(--grey-light);
+	border-radius: 16px 16px 0 0 !important;
+	padding: 1.25rem 1.5rem;
 }
 
-/* Primary Buttons are now Black to avoid "Danger" feeling */
-.btn-primary {
-	background-color: var(--cci-black) !important;
-	border-color: var(--cci-black) !important;
-	color: #fff !important;
-}
-
-	.btn-primary:hover {
-		background-color: #333 !important;
-		border-color: #333 !important;
-		transform: translateY(-1px);
-	}
-
-/* Outline buttons use the CCI Red as an accent */
-.btn-outline-primary {
-	color: var(--cci-red) !important;
-	border-color: var(--cci-red) !important;
-}
-
-	.btn-outline-primary:hover {
-		background-color: var(--cci-red) !important;
-		color: #fff !important;
-	}
-
+/* Buttons */
 .btn {
 	border-radius: 8px;
 	font-weight: 600;
@@ -68,50 +56,137 @@ h1, h2, h3, h4, h5, h6 {
 	transition: all 0.2s;
 }
 
+.btn-primary {
+	background-color: var(--ember) !important;
+	border-color: var(--ember) !important;
+	color: #fff !important;
+}
+
+	.btn-primary:hover {
+		background-color: var(--ember-hover) !important;
+		border-color: var(--ember-hover) !important;
+		transform: translateY(-1px);
+	}
+
+.btn-outline-primary {
+	color: var(--ember) !important;
+	border-color: var(--ember) !important;
+}
+
+	.btn-outline-primary:hover {
+		background-color: var(--ember) !important;
+		color: #fff !important;
+	}
+
+.btn-dark {
+	background-color: var(--ink) !important;
+	border-color: var(--ink) !important;
+}
+
+	.btn-dark:hover {
+		background-color: #000 !important;
+		border-color: #000 !important;
+	}
+
 /* Tables */
 .table {
 	margin-bottom: 0;
+	color: var(--ink);
 }
 
 	.table th {
 		font-weight: 700;
-		color: var(--cci-black);
+		color: var(--grey-mid);
 		text-transform: uppercase;
-		font-size: 0.8rem;
+		font-size: 0.75rem;
 		letter-spacing: 0.5px;
-		border-bottom-width: 2px;
+		border-bottom-width: 1px;
+		border-color: var(--grey-light);
+		padding: 1rem;
 	}
 
 	.table td {
 		vertical-align: middle;
+		padding: 1rem;
+		border-color: var(--grey-light);
 	}
+
+.table-hover tbody tr:hover {
+	background-color: var(--paper);
+}
 
 /* Forms */
 .form-control, .form-select {
 	border-radius: 8px;
-	border: 1px solid #ced4da;
+	border: 1px solid var(--grey-light);
 	padding: 0.6rem 1rem;
+	color: var(--ink);
 }
 
 	.form-control:focus, .form-select:focus {
-		border-color: var(--cci-red);
-		box-shadow: 0 0 0 0.25rem rgba(223, 78, 78, 0.25);
+		border-color: var(--ember);
+		box-shadow: 0 0 0 0.25rem rgba(194, 65, 12, 0.15);
 	}
 
-/* Soft Badges for Assignment Grid */
+/* Status Soft Badges for Assignment Grid */
 .bg-success-soft {
-	background-color: #d1e7dd !important;
+	background-color: var(--leaf-light) !important;
+	border-left: 3px solid var(--leaf) !important;
 }
 
 .bg-danger-soft {
-	background-color: #f8d7da !important;
+	background-color: var(--flame) !important;
+	border-left: 3px solid var(--ember) !important;
 }
 
 .bg-warning-soft {
-	background-color: #fff3cd !important;
+	background-color: #fef3c7 !important;
+	border-left: 3px solid #d97706 !important;
 }
 
-/* Navbar specific tweaks */
+/* Navbar */
+.navbar {
+	background-color: var(--ink) !important;
+	padding: 0.75rem 0;
+	box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
 .navbar-brand img {
-	filter: brightness(0) invert(1); /* Ensures the logo is white */
+	filter: brightness(0) invert(1);
+}
+
+.nav-link {
+	color: #a1a1aa !important;
+	font-weight: 500;
+}
+
+	.nav-link:hover, .nav-link.active {
+		color: #ffffff !important;
+	}
+
+/* Absence List Custom Styles */
+.absence-card {
+	border-left: 4px solid var(--ember);
+	background: white;
+	border-radius: 12px;
+	margin-bottom: 1rem;
+	transition: all 0.2s;
+	text-decoration: none;
+	color: var(--ink);
+	display: block;
+}
+
+	.absence-card:hover {
+		background: var(--paper);
+		transform: translateX(4px);
+		color: var(--ink);
+		box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+	}
+
+.badge-ember {
+	background-color: var(--flame);
+	color: var(--ember);
+	font-weight: 700;
+	padding: 0.4em 0.8em;
+	border-radius: 6px;
 }

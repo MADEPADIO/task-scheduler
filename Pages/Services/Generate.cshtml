@@ -1,53 +1,50 @@
 ﻿@page
 @model TaskSchedulerApp.Pages.Services.GenerateModel
 @{
-	ViewData["Title"] = "Generate Standard Sundays";
+    ViewData["Title"] = "Generate Standard Sundays";
 }
 
-<div class="container mt-4">
-	<div class="row justify-content-center">
-		<div class="col-md-8 col-lg-6">
-			<div class="card shadow-sm border-success">
-				<div class="card-header bg-success text-white">
-					<h4 class="mb-0">Generate Standard Sundays</h4>
-				</div>
-				<div class="card-body">
-					<p class="text-muted mb-4">
-						This will automatically create <strong>3 Services</strong> (8:00 AM, 10:00 AM, 12:00 PM)
-						and attach your <strong>4 standard sessions</strong> to each one, for every week specified.
-					</p>
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="card border-0 shadow-lg" style="border-radius: 16px;">
+                <div class="card-header pt-4 pb-3 border-bottom-0 bg-white text-center">
+                    <h3 class="fw-bold mb-1">Generate Sundays</h3>
+                    <p class="text-muted small mb-0">Create multiple weeks of standard schedules in one click.</p>
+                </div>
+                <div class="card-body p-5 pt-0">
+                    <div class="alert alert-light border shadow-sm small mb-4" style="background-color: var(--paper);">
+                        This will automatically create <strong>3 Services</strong> (8:00 AM, 10:00 AM, 12:00 PM)
+                        and attach your <strong>4 standard sessions</strong> to each one, for every week specified.
+                    </div>
 
-					<form method="post">
-						<div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                    <form method="post">
+                        <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
 
-						<div class="row">
-							<div class="col-md-6 mb-3">
-								<label asp-for="StartDate" class="form-label fw-bold">Start Date (Must be a Sunday)</label>
-								<input asp-for="StartDate" class="form-control" type="date" />
-								<span asp-validation-for="StartDate" class="text-danger small"></span>
-							</div>
-							<div class="col-md-6 mb-3">
-								<label asp-for="NumberOfWeeks" class="form-label fw-bold">Number of Weeks</label>
-								<input asp-for="NumberOfWeeks" class="form-control" type="number" min="1" max="12" />
-								<span asp-validation-for="NumberOfWeeks" class="text-danger small"></span>
-							</div>
-						</div>
+                        <div class="row">
+                            <div class="col-md-6 mb-4">
+                                <label asp-for="StartDate" class="form-label fw-bold">Start Date (Must be a Sunday)</label>
+                                <input asp-for="StartDate" class="form-control form-control-lg" type="date" />
+                                <span asp-validation-for="StartDate" class="text-danger small"></span>
+                            </div>
+                            <div class="col-md-6 mb-4">
+                                <label asp-for="NumberOfWeeks" class="form-label fw-bold">Number of Weeks</label>
+                                <input asp-for="NumberOfWeeks" class="form-control form-control-lg" type="number" min="1" max="12" />
+                                <span asp-validation-for="NumberOfWeeks" class="text-danger small"></span>
+                            </div>
+                        </div>
 
-						<div class="alert alert-info small mt-2">
-							<strong>Tip:</strong> Generating 4 weeks will fill up the current month. If there is a special event, you can always edit or delete a specific week later.
-						</div>
-
-						<div class="d-flex justify-content-between mt-3">
-							<a asp-page="./Index" class="btn btn-outline-secondary">Cancel</a>
-							<button type="submit" class="btn btn-success">Generate Schedule</button>
-						</div>
-					</form>
-				</div>
-			</div>
-		</div>
-	</div>
+                        <div class="d-flex justify-content-between mt-4">
+                            <a asp-page="./Index" class="btn btn-outline-secondary px-4">Cancel</a>
+                            <button type="submit" class="btn btn-primary px-4 fw-bold">Generate Schedule</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
 @section Scripts {
-	<partial name="_ValidationScriptsPartial" />
+    <partial name="_ValidationScriptsPartial" />
 }

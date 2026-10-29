@@ -2,122 +2,124 @@
 @using TaskSchedulerApp.Models
 @model TaskSchedulerApp.Pages.Assignments.IndexModel
 @{
-	ViewData["Title"] = $"Assignments - {Model.Service.Name}";
+    ViewData["Title"] = $"Assignments - {Model.Service.Name}";
 }
 
-<div class="container-fluid mt-4 px-lg-5">
-	<div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
-		<div>
-			<h1 class="fw-bold mb-0">Assignment Grid</h1>
-			<p class="text-muted mb-0 fs-5">@Model.Service.Name - @Model.Service.Date.ToString("dddd, MMMM dd, yyyy") at @Model.Service.StartTime.ToString("hh:mm tt")</p>
-		</div>
-		<a asp-page="/Services/Index" class="btn btn-outline-secondary">Back to Services</a>
-	</div>
+<div class="container-fluid mt-4 px-lg-5 mb-5">
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
+        <div>
+            <h1 class="fw-bold mb-1">Assignment Grid</h1>
+            <p class="text-muted mb-0 fs-6">@Model.Service.Name &bull; @Model.Service.Date.ToString("dddd, MMMM dd, yyyy") &bull; @Model.Service.StartTime.ToString("hh:mm tt")</p>
+        </div>
+        <a asp-page="/Services/Index" class="btn btn-outline-secondary">Back to Services</a>
+    </div>
 
-	@if (TempData["Success"] is string successMsg)
-	{
-		<div class="alert alert-success border-0 shadow-sm alert-dismissible fade show" role="alert">
-			@successMsg
-			<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-		</div>
-	}
-	@if (TempData["Error"] is string errorMsg)
-	{
-		<div class="alert alert-danger border-0 shadow-sm alert-dismissible fade show" role="alert">
-			@errorMsg
-			<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-		</div>
-	}
+    @if (TempData["Success"] is string successMsg)
+    {
+        <div class="alert alert-success border-0 shadow-sm alert-dismissible fade show" role="alert">
+            @successMsg
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+    @if (TempData["Error"] is string errorMsg)
+    {
+        <div class="alert alert-danger border-0 shadow-sm alert-dismissible fade show" role="alert">
+            @errorMsg
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
 
-	<form method="post" asp-page-handler="Save" asp-route-serviceId="@Model.Service.Id">
-		<div class="card mb-4 border-start border-4 border-danger">
-			<div class="card-body d-flex justify-content-between align-items-center flex-wrap gap-3">
-				<div class="form-check form-switch mb-0">
-					<input class="form-check-input" type="checkbox" role="switch" id="overrideSwitch" style="transform: scale(1.5); margin-right: 10px;"
-					@(Model.OverrideRules == true ? "checked" : "")
-						   onchange="window.location.href='?id=@Model.Service.Id&OverrideRules=' + this.checked">
-					<label class="form-check-label fw-bold text-danger fs-5" for="overrideSwitch">
-						Override Max 2 Services Rule
-					</label>
-					<div class="text-muted small ms-1">Use only for emergencies</div>
-				</div>
+    <form method="post" asp-page-handler="Save" asp-route-serviceId="@Model.Service.Id">
+        <div class="card mb-4 border-0 shadow-sm">
+            <div class="card-body p-4 d-flex justify-content-between align-items-center flex-wrap gap-3">
+                <div class="form-check form-switch mb-0 d-flex align-items-center gap-3">
+                    <input class="form-check-input fs-4 m-0" type="checkbox" role="switch" id="overrideSwitch" 
+                           @(Model.OverrideRules == true ? "checked" : "")
+                           onchange="window.location.href='?id=@Model.Service.Id&OverrideRules=' + this.checked">
+                    <div>
+                        <label class="form-check-label fw-bold fs-6 mb-0" style="color: var(--ember);" for="overrideSwitch">
+                            Override Max 2 Services Rule
+                        </label>
+                        <div class="text-muted small">Use only for emergencies</div>
+                    </div>
+                </div>
 
-				<button type="submit" asp-page-handler="CopyLastWeek" asp-route-serviceId="@Model.Service.Id"
-						class="btn btn-outline-dark"
-						onclick="return confirm('This will copy all assignments from the previous week into empty slots. Continue?');">
-					Copy Last Week
-				</button>
-			</div>
-		</div>
+                <button type="submit" asp-page-handler="CopyLastWeek" asp-route-serviceId="@Model.Service.Id"
+                        class="btn btn-outline-primary"
+                        onclick="return confirm('This will copy all assignments from the previous week into empty slots. Continue?');">
+                    Copy Last Week
+                </button>
+            </div>
+        </div>
 
-		<div class="card">
-			<div class="table-responsive">
-				<table class="table table-bordered align-middle mb-0 text-center">
-					<thead class="table-dark">
-						<tr>
-							<th style="width: 250px; text-align: left;">Session</th>
-							@foreach (var cam in Model.ActiveCameras)
-							{
-								<th>@cam.Name</th>
-							}
-						</tr>
-					</thead>
-					<tbody>
-						@foreach (var session in Model.Service.Sessions)
-						{
-							<tr>
-								<td class="text-start fw-bold bg-light">
-									<span class="badge bg-secondary me-2">@session.Order</span>
-									@session.Name
-								</td>
-								@foreach (var cam in Model.ActiveCameras)
-								{
-									var existingAssignment = Model.ExistingAssignments[(session.Id, cam.Id)];
-									var currentUserId = existingAssignment?.UserId;
-									var disabledList = Model.DisabledUsers[(session.Id, cam.Id)];
+        <div class="card border-0 shadow-sm">
+            <div class="table-responsive">
+                <table class="table table-bordered align-middle mb-0 text-center">
+                    <thead style="background-color: var(--ink); color: white;">
+                        <tr>
+                            <th style="width: 250px; text-align: left; color: white;">Session</th>
+                            @foreach (var cam in Model.ActiveCameras)
+                            {
+                                <th style="color: white;">@cam.Name</th>
+                            }
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var session in Model.Service.Sessions)
+                        {
+                            <tr>
+                                <td class="text-start fw-bold" style="background-color: #fafafa;">
+                                    <span class="badge bg-secondary me-2">@session.Order</span>
+                                    @session.Name
+                                </td>
+                                @foreach (var cam in Model.ActiveCameras)
+                                {
+                                    var existingAssignment = Model.ExistingAssignments[(session.Id, cam.Id)];
+                                    var currentUserId = existingAssignment?.UserId;
+                                    var disabledList = Model.DisabledUsers[(session.Id, cam.Id)];
 
-									string cellClass = "";
-									if (existingAssignment != null)
-									{
-										cellClass = existingAssignment.Status switch
-										{
-											AssignmentStatus.Attending => "bg-success-soft",
-											AssignmentStatus.Absent => "bg-danger-soft",
-											AssignmentStatus.Pending => "bg-warning-soft",
-											_ => ""
-										};
-									}
+                                    string cellClass = "";
+                                    if (existingAssignment != null)
+                                    {
+                                        cellClass = existingAssignment.Status switch
+                                        {
+                                            AssignmentStatus.Attending => "bg-success-soft",
+                                            AssignmentStatus.Absent => "bg-danger-soft",
+                                            AssignmentStatus.Pending => "bg-warning-soft",
+                                            _ => ""
+                                        };
+                                    }
 
-									<td class="@cellClass p-2">
-										<select name="assign_@(session.Id)_@(cam.Id)" class="form-select form-select-sm border-0 shadow-sm">
-											<option value="">-- Unassigned --</option>
-											@foreach (var member in Model.ActiveMembers)
-											{
-												bool isSelected = currentUserId == member.Id;
-												bool isDisabled = disabledList.Contains(member.Id);
+                                    <td class="@cellClass p-2">
+                                        <select name="assign_@(session.Id)_@(cam.Id)" class="form-select form-select-sm border-0 shadow-sm" style="font-weight: 500;">
+                                            <option value="">-- Unassigned --</option>
+                                            @foreach (var member in Model.ActiveMembers)
+                                            {
+                                                bool isSelected = currentUserId == member.Id;
+                                                bool isDisabled = disabledList.Contains(member.Id);
 
-												string displayText = (isSelected && isDisabled) ? $"{member.Name} (Violation)" : member.Name;
+                                                string displayText = (isSelected && isDisabled) ? $"{member.Name} (Violation)" : member.Name;
 
-												if (isSelected)
-												{
-													<option value="@member.Id" selected>@displayText</option>
-												}
-												else
-												{
-													<option value="@member.Id" disabled="@isDisabled">@member.Name</option>
-												}
-											}
-										</select>
-									</td>
-								}
-							</tr>
-						}
-					</tbody>
-				</table>
-			</div>
-			<div class="card-footer bg-white text-end py-3">
-				<button type="submit" class="btn btn-dark px-5 py-2 fw-bold">Save Assignments</button>
-			</div>
-		</div>
-	</form>
+                                                if (isSelected)
+                                                {
+                                                    <option value="@member.Id" selected>@displayText</option>
+                                                }
+                                                else
+                                                {
+                                                    <option value="@member.Id" disabled="@isDisabled">@member.Name</option>
+                                                }
+                                            }
+                                        </select>
+                                    </td>
+                                }
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+            <div class="card-footer bg-white text-end py-3 border-0">
+                <button type="submit" class="btn btn-primary px-5 py-2 fw-bold">Save Assignments</button>
+            </div>
+        </div>
+    </form>
 </div>

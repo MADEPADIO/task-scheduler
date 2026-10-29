@@ -1,57 +1,57 @@
 ﻿@page
 @model SetupModel
 @{
-	ViewData["Title"] = "Setup";
+    ViewData["Title"] = "Setup";
 }
 
-<div class="container">
-	<div class="row justify-content-center mt-5">
-		<div class="col-md-6 col-lg-5">
-			<div class="card shadow-sm">
-				<div class="card-body p-4">
-					<h1 class="h3 mb-2">Initial Setup</h1>
-					<p class="text-muted small mb-4">
-						No admin exists yet. Create the first admin account.
-						This page will lock itself after you submit.
-					</p>
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6 col-lg-5">
+            <div class="card border-0 shadow-lg mt-5" style="border-radius: 16px;">
+                <div class="card-body p-5">
+                    <div class="text-center mb-4">
+                        <img src="https://www.joincci.org/logo.svg" alt="CCI Logo" style="height: 50px; filter: invert(1); margin-bottom: 20px;" />
+                        <h2 class="fw-bold mb-1">Initial Setup</h2>
+                        <p class="text-muted small">Create the first Admin account. This page will lock itself after submission.</p>
+                    </div>
 
-					<form method="post">
-						<div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+                    <form method="post">
+                        <div asp-validation-summary="ModelOnly" class="text-danger mb-3 small"></div>
 
-						<div class="mb-3">
-							<label asp-for="Input.Name" class="form-label"></label>
-							<input asp-for="Input.Name" class="form-control" autocomplete="name" />
-							<span asp-validation-for="Input.Name" class="text-danger small"></span>
-						</div>
+                        <div class="mb-3">
+                            <label asp-for="Input.Name" class="form-label fw-bold"></label>
+                            <input asp-for="Input.Name" class="form-control form-control-lg" autocomplete="name" />
+                            <span asp-validation-for="Input.Name" class="text-danger small"></span>
+                        </div>
 
-						<div class="mb-3">
-							<label asp-for="Input.Email" class="form-label"></label>
-							<input asp-for="Input.Email" class="form-control" type="email" autocomplete="email" />
-							<span asp-validation-for="Input.Email" class="text-danger small"></span>
-						</div>
+                        <div class="mb-3">
+                            <label asp-for="Input.Email" class="form-label fw-bold"></label>
+                            <input asp-for="Input.Email" class="form-control form-control-lg" type="email" autocomplete="email" />
+                            <span asp-validation-for="Input.Email" class="text-danger small"></span>
+                        </div>
 
-						<div class="mb-3">
-							<label asp-for="Input.Password" class="form-label"></label>
-							<input asp-for="Input.Password" class="form-control" autocomplete="new-password" />
-							<span asp-validation-for="Input.Password" class="text-danger small"></span>
-						</div>
+                        <div class="mb-3">
+                            <label asp-for="Input.Password" class="form-label fw-bold"></label>
+                            <input asp-for="Input.Password" class="form-control form-control-lg" autocomplete="new-password" />
+                            <span asp-validation-for="Input.Password" class="text-danger small"></span>
+                        </div>
 
-						<div class="mb-3">
-							<label asp-for="Input.ConfirmPassword" class="form-label"></label>
-							<input asp-for="Input.ConfirmPassword" class="form-control" autocomplete="new-password" />
-							<span asp-validation-for="Input.ConfirmPassword" class="text-danger small"></span>
-						</div>
+                        <div class="mb-4">
+                            <label asp-for="Input.ConfirmPassword" class="form-label fw-bold"></label>
+                            <input asp-for="Input.ConfirmPassword" class="form-control form-control-lg" autocomplete="new-password" />
+                            <span asp-validation-for="Input.ConfirmPassword" class="text-danger small"></span>
+                        </div>
 
-						<button type="submit" class="btn btn-primary w-100">
-							Create Admin Account
-						</button>
-					</form>
-				</div>
-			</div>
-		</div>
-	</div>
+                        <button type="submit" class="btn btn-primary btn-lg w-100 fw-bold py-3" style="border-radius: 8px;">
+                            Create Admin Account
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
 @section Scripts {
-	<partial name="_ValidationScriptsPartial" />
+    <partial name="_ValidationScriptsPartial" />
 }

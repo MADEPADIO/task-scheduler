@@ -37,8 +37,11 @@ namespace TaskSchedulerApp
 				connectionString = npgsqlBuilder.ToString();
 			}
 
+
 			// Add services to the container.
-			builder.Services.AddSingleton<AuditInterceptor>();
+			builder.Services.AddHttpContextAccessor();
+
+			builder.Services.AddScoped<AuditInterceptor>();
 
 			builder.Services.AddDbContext<SchedulerContext>((serviceProvider, options) =>
 			{

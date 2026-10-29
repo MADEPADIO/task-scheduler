@@ -1,32 +1,33 @@
 ﻿@page
 @model TaskSchedulerApp.Pages.Account.LoginModel
 @{
-	ViewData["Title"] = "Login";
+    ViewData["Title"] = "Login";
 }
 
 <div class="container mt-5">
-	<div class="row justify-content-center">
-		<div class="col-md-5">
-			<div class="card shadow-sm">
-				<div class="card-body p-4">
-					<h1 class="h3 mb-4 text-center">Login</h1>
+    <div class="row justify-content-center">
+        <div class="col-md-5">
+            <div class="card border-0 shadow-lg mt-5" style="border-radius: 16px;">
+                <div class="card-body p-5">
+                    <div class="text-center mb-4">
+                        <img src="https://www.joincci.org/logo.svg" alt="CCI Logo" style="height: 50px; filter: invert(1); margin-bottom: 20px;" />
+                        <h2 class="fw-bold mb-1">Welcome Back</h2>
+                        <p class="text-muted small">Sign in to manage your unit's schedule.</p>
+                    </div>
 
-					<form method="post" id="loginForm">
-						<div asp-validation-summary="All" class="text-danger mb-3"></div>
-						<div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+                    <form method="post" id="loginForm">
+                        <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
 
-						                        <div class="mb-3">
-                            <label asp-for="Input.Email" class="form-label">Email</label>
+                        <div class="mb-4">
+                            <label asp-for="Input.Email" class="form-label fw-bold">Email Address</label>
                             <div class="input-group">
-                                <input asp-for="Input.Email" class="form-control" type="email" id="emailInput" autocomplete="email" />
+                                <input asp-for="Input.Email" class="form-control form-control-lg" type="email" id="emailInput" autocomplete="email" placeholder="name@example.com" />
                                 
-                                <!-- Loading Spinner (Hidden by default) -->
-                                <span class="input-group-text bg-white d-none" id="emailSpinner">
+                                <span class="input-group-text bg-white d-none border-start-0 rounded-end" id="emailSpinner">
                                     <div class="spinner-border spinner-border-sm text-primary" role="status"></div>
                                 </span>
                                 
-                                <!-- Green Checkmark (Hidden by default) -->
-                                <span class="input-group-text bg-white d-none" id="emailCheck">
+                                <span class="input-group-text bg-white d-none border-start-0 rounded-end" id="emailCheck">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-check-circle-fill text-success" viewBox="0 0 16 16">
                                       <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z"/>
                                     </svg>
@@ -35,20 +36,18 @@
                             <span asp-validation-for="Input.Email" class="text-danger small"></span>
                         </div>
 
-						<!-- Initially hidden. JS will reveal it if the email is an Admin. -->
-						<!-- Initially hidden, but if the server returns a validation error, keep it visible -->
-						<div class="mb-3 @(ViewData.ModelState.ContainsKey("Input.Password") || ViewData.ModelState.ContainsKey(string.Empty) ? "" : "d-none")" id="passwordContainer">
-							<label asp-for="Input.Password" class="form-label">Password</label>
-							<input asp-for="Input.Password" class="form-control" id="passwordInput" />
-							<span asp-validation-for="Input.Password" class="text-danger small"></span>
-						</div>
+                        <div class="mb-4 @(ViewData.ModelState.ContainsKey("Input.Password") || ViewData.ModelState.ContainsKey(string.Empty) ? "" : "d-none")" id="passwordContainer">
+                            <label asp-for="Input.Password" class="form-label fw-bold">Password</label>
+                            <input asp-for="Input.Password" class="form-control form-control-lg" id="passwordInput" placeholder="••••••••" />
+                            <span asp-validation-for="Input.Password" class="text-danger small"></span>
+                        </div>
 
-						<button type="submit" class="btn btn-primary w-100 mt-2">Log In</button>
-					</form>
-				</div>
-			</div>
-		</div>
-	</div>
+                        <button type="submit" class="btn btn-primary btn-lg w-100 fw-bold py-3" style="border-radius: 8px;">Log In</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
 @section Scripts {
@@ -65,32 +64,26 @@
             let debounceTimer;
             let abortController;
 
-            // Use "input" instead of "blur" so it checks as they type
             emailInput.addEventListener("input", function () {
                 const email = this.value;
                 
-                // Clear previous timer and abort any pending network requests
                 clearTimeout(debounceTimer);
                 if (abortController) {
                     abortController.abort(); 
                 }
 
-                // Reset UI immediately on typing
                 passwordContainer.classList.add("d-none");
                 passwordInput.value = "";
                 checkmark.classList.add("d-none");
                 spinner.classList.add("d-none");
 
-                // Don't check until it looks like a valid email
                 if (!email.includes('@@') || email.length < 5) {
                     return;
                 }
 
-                // Wait 500ms after they stop typing before sending the request
                 debounceTimer = setTimeout(async () => {
                     spinner.classList.remove("d-none");
                     
-                    // AbortController allows us to cancel the request if they type another letter
                     abortController = new AbortController();
 
                     try {
@@ -110,13 +103,12 @@
                             passwordInput.required = false;
                         }
                     } catch (error) {
-                        // Ignore AbortErrors (happens when the user types another key)
                         if (error.name !== 'AbortError') {
                             spinner.classList.add("d-none");
                             console.error("Error checking email", error);
                         }
                     }
-                }, 500); // 500ms debounce delay
+                }, 500);
             });
         });
     </script>

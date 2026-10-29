@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using TaskSchedulerApp.Models;
 
@@ -6,6 +7,13 @@ namespace TaskSchedulerApp.Data
 {
 	public class AuditInterceptor : SaveChangesInterceptor
 	{
+		private readonly IHttpContextAccessor _httpContextAccessor;
+
+		public AuditInterceptor(IHttpContextAccessor httpContextAccessor)
+		{
+			_httpContextAccessor = httpContextAccessor;
+		}
+
 		public override ValueTask<InterceptionResult<int>> SavingChangesAsync(DbContextEventData eventData, InterceptionResult<int> result, CancellationToken cancellationToken = default)
 		{
 			GenerateAuditLogs(eventData.Context);
@@ -24,13 +32,15 @@ namespace TaskSchedulerApp.Data
 
 			var auditEntries = new List<AuditLog>();
 
+			// NEW: Get the current user's name from the HTTP context
+			var userName = _httpContextAccessor.HttpContext?.User?.Identity?.Name ?? "System (Automated)";
+
 			foreach (var entry in context.ChangeTracker.Entries())
 			{
-				// Ignore AuditLogs themselves to prevent infinite loops
 				if (entry.Entity is AuditLog || entry.State == EntityState.Unchanged || entry.State == EntityState.Detached)
 					continue;
 
-				var action = entry.State.ToString(); // Added, Modified, Deleted
+				var action = entry.State.ToString();
 				var entityName = entry.Entity.GetType().Name;
 
 				string details = "Unknown";
@@ -40,7 +50,7 @@ namespace TaskSchedulerApp.Data
 				else if (entity is Camera c) details = $"Camera: {c.Name}";
 				else if (entity is Service s) details = $"Service: {s.Name} on {s.Date}";
 				else if (entity is Session se) details = $"Session: {se.Name} (Order {se.Order})";
-				else if (entity is Assignment a) details = $"Assignment for {a.CameraId} (Status: {a.Status})";
+				else if (entity is Assignment a) details = $"Assignment for Camera ID: {a.CameraId} (Status: {a.Status})";
 
 				auditEntries.Add(new AuditLog
 				{
@@ -48,6 +58,7 @@ namespace TaskSchedulerApp.Data
 					Action = action,
 					EntityName = entityName,
 					Details = details,
+					PerformedBy = userName, // <-- SAVE THE USER HERE
 					Timestamp = DateTime.UtcNow
 				});
 			}

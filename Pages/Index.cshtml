@@ -4,91 +4,88 @@
 	ViewData["Title"] = "Admin Dashboard";
 }
 
-<div class="container mt-4">
+<div class="container mt-5">
 	<div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
 		<div>
-			<h1 class="display-6 fw-bold mb-0">Dashboard</h1>
+			<h1 class="fw-bold mb-1">Dashboard</h1>
 			<p class="text-muted mb-0">Welcome back. Here is your unit's overview.</p>
 		</div>
-		<a asp-page="/Services/Generate" class="btn btn-primary">
-			<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-magic me-1" viewBox="0 0 16 16"><path d="M9.5 2.672a.5.5 0 1 0 1 0V.843a.5.5 0 0 0-1 0v1.829Zm4.5.5a.5.5 0 0 0-.5-.5h-1.829a.5.5 0 0 0 0 1H13.5a.5.5 0 0 0 .5-.5Zm-13 0a.5.5 0 0 0 .5.5h1.829a.5.5 0 0 0 0-1H1.5a.5.5 0 0 0-.5.5Zm1.343 3.343a.5.5 0 0 0 .707 0l1.293-1.293a.5.5 0 1 0-.707-.707L2.343 5.808a.5.5 0 0 0 0 .707Zm8.121 8.121a.5.5 0 0 0 .707 0l1.293-1.293a.5.5 0 1 0-.707-.707l-1.293 1.293a.5.5 0 0 0 0 .707Zm-8.121 0a.5.5 0 0 1-.707 0L.843 14.243a.5.5 0 0 1 .707-.707l1.293 1.293a.5.5 0 0 1 0 .707ZM14.157 5.808a.5.5 0 0 1-.707.707l-1.293-1.293a.5.5 0 1 1 .707-.707l1.293 1.293ZM8.47 5.807a.5.5 0 0 1 .707 0l.353.353a.5.5 0 0 1 0 .707l-4.95 4.95a.5.5 0 0 1-.707 0l-.353-.353a.5.5 0 0 1 0-.707l4.95-4.95Z" /></svg>
+		<a asp-page="/Services/Generate" class="btn btn-primary d-flex align-items-center gap-2">
+			<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-magic" viewBox="0 0 16 16"><path d="M9.5 2.672a.5.5 0 1 0 1 0V.843a.5.5 0 0 0-1 0v1.829Zm4.5.5a.5.5 0 0 0-.5-.5h-1.829a.5.5 0 0 0 0 1H13.5a.5.5 0 0 0 .5-.5Zm-13 0a.5.5 0 0 0 .5.5h1.829a.5.5 0 0 0 0-1H1.5a.5.5 0 0 0-.5.5Zm1.343 3.343a.5.5 0 0 0 .707 0l1.293-1.293a.5.5 0 1 0-.707-.707L2.343 5.808a.5.5 0 0 0 0 .707Zm8.121 8.121a.5.5 0 0 0 .707 0l1.293-1.293a.5.5 0 1 0-.707-.707l-1.293 1.293a.5.5 0 0 0 0 .707Zm-8.121 0a.5.5 0 0 1-.707 0L.843 14.243a.5.5 0 0 1 .707-.707l1.293 1.293a.5.5 0 0 1 0 .707ZM14.157 5.808a.5.5 0 0 1-.707.707l-1.293-1.293a.5.5 0 1 1 .707-.707l1.293 1.293ZM8.47 5.807a.5.5 0 0 1 .707 0l.353.353a.5.5 0 0 1 0 .707l-4.95 4.95a.5.5 0 0 1-.707 0l-.353-.353a.5.5 0 0 1 0-.707l4.95-4.95Z" /></svg>
 			Generate Schedule
 		</a>
 	</div>
 
 	@if (Model.RecentAbsences.Any())
 	{
-		<div class="card shadow-sm mb-4 border-0">
-			<div class="card-header bg-white border-bottom-0 pt-4 pb-0">
-				<h4 class="fw-bold mb-0 text-danger">
-					<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-exclamation-triangle-fill me-2" viewBox="0 0 16 16"><path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z" /></svg>
-					Action Required: Member Absences
-				</h4>
-				<p class="text-muted small mb-3">The following members have marked themselves unavailable. Click an item to reassign their camera.</p>
+		<div class="mb-5">
+			<div class="d-flex align-items-center justify-content-between mb-3">
+				<h4 class="mb-0 fw-bold" style="color: var(--ember);">Action Required</h4>
+				<span class="text-muted small">These members have marked themselves absent.</span>
 			</div>
-			<div class="list-group list-group-flush">
+
+			<div class="d-flex flex-column gap-3">
 				@foreach (var absence in Model.RecentAbsences)
 				{
-					<!-- Each absence is now a clickable list item with a red left border -->
-					<a asp-page="/Assignments/Index" asp-route-id="@absence.Session.ServiceId"
-					   class="list-group-item list-group-item-action border-start border-4 border-danger d-flex justify-content-between align-items-center py-3">
-						<div>
-							<div class="d-flex align-items-center mb-1">
-								<h5 class="mb-0 fw-bold text-dark me-3">@absence.User.Name</h5>
-								<span class="badge bg-danger rounded-pill" style="font-size: 0.7rem;">Needs Reassignment</span>
+					<a asp-page="/Assignments/Index" asp-route-id="@absence.Session.ServiceId" class="absence-card shadow-sm">
+						<div class="d-flex justify-content-between align-items-center p-4">
+							<div>
+								<div class="d-flex align-items-center mb-2 gap-2">
+									<h5 class="mb-0 fw-bold">@absence.User.Name</h5>
+									<span class="badge-ember small">Needs Cover</span>
+								</div>
+								<div class="text-muted small mb-1">
+									<strong>@absence.Session.Service.Name</strong> &bull; @absence.Session.Service.Date.ToString("ddd, MMM dd") &bull; @absence.Session.Name
+								</div>
+								<div class="text-muted small">
+									Camera: <strong class="text-dark">@absence.Camera.Name</strong> &nbsp;|&nbsp; Reason: <em>"@absence.AbsenceReason"</em>
+								</div>
 							</div>
-							<div class="text-muted small mb-1">
-								<strong>@absence.Session.Service.Name</strong> (@absence.Session.Service.Date.ToString("ddd, MMM dd"))
-								&bull; @absence.Session.Name &bull; <strong class="text-dark">@absence.Camera.Name</strong>
+							<div class="text-muted" style="color: var(--ember) !important;">
+								<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-chevron-right" viewBox="0 0 16 16">
+									<path fill-rule="evenodd" d="M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708z" />
+								</svg>
 							</div>
-							<div class="text-muted small fst-italic">
-								Reason: "@absence.AbsenceReason"
-							</div>
-						</div>
-						<div class="text-muted ms-3">
-							<!-- Chevron icon to indicate it's clickable -->
-							<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-chevron-right" viewBox="0 0 16 16">
-								<path fill-rule="evenodd" d="M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708z" />
-							</svg>
 						</div>
 					</a>
 				}
 			</div>
 		</div>
 	}
-	<div class="row mb-4">
-		<div class="col-md-6 mb-3">
-			<div class="card h-100 border-start border-4 border-dark">
+
+	<div class="row mb-5 gap-4">
+		<div class="col-md-6">
+			<div class="card h-100">
 				<div class="card-body p-4 d-flex align-items-center justify-content-between">
 					<div>
-						<h6 class="text-muted text-uppercase fw-bold mb-1">Active Members</h6>
+						<h6 class="text-muted text-uppercase fw-bold mb-1" style="font-size: 0.8rem; letter-spacing: 1px;">Active Members</h6>
 						<h2 class="display-5 mb-0 fw-bold">@Model.TotalMembers</h2>
 					</div>
 					<a asp-page="/Members/Index" class="btn btn-outline-primary">Manage</a>
 				</div>
 			</div>
 		</div>
-		<div class="col-md-6 mb-3">
-			<div class="card h-100 border-start border-4 border-dark">
+		<div class="col-md-6">
+			<div class="card h-100">
 				<div class="card-body p-4 d-flex align-items-center justify-content-between">
 					<div>
-						<h6 class="text-muted text-uppercase fw-bold mb-1">Active Cameras</h6>
+						<h6 class="text-muted text-uppercase fw-bold mb-1" style="font-size: 0.8rem; letter-spacing: 1px;">Active Cameras</h6>
 						<h2 class="display-5 mb-0 fw-bold">@Model.TotalCameras</h2>
 					</div>
-					<a asp-page="/Cameras/Index" class="btn btn-outline-dark">Manage</a>
+					<a asp-page="/Cameras/Index" class="btn btn-outline-primary">Manage</a>
 				</div>
 			</div>
 		</div>
 	</div>
 
 	<div class="card">
-		<div class="card-header d-flex justify-content-between align-items-center">
-			<span>Next 3 Upcoming Services</span>
+		<div class="card-header d-flex justify-content-between align-items-center pt-3 pb-3">
+			<h5 class="mb-0 fw-bold">Upcoming Services</h5>
 			<a asp-page="/Services/Index" class="btn btn-sm btn-outline-secondary">View All</a>
 		</div>
 		<div class="table-responsive">
 			<table class="table table-hover mb-0">
-				<thead class="table-light">
+				<thead>
 					<tr>
 						<th>Date</th>
 						<th>Service</th>
@@ -100,8 +97,8 @@
 					@foreach (var service in Model.UpcomingServices)
 					{
 						<tr>
-							<td class="fw-bold text-black">@service.Date.ToString("ddd, MMM dd")</td>
-							<td>@service.Name</td>
+							<td class="fw-bold">@service.Date.ToString("ddd, MMM dd")</td>
+							<td class="fw-bold">@service.Name</td>
 							<td>@service.StartTime.ToString("hh:mm tt")</td>
 							<td class="text-end">
 								<a asp-page="/Assignments/Index" asp-route-id="@service.Id" class="btn btn-sm btn-dark">

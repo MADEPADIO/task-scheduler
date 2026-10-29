@@ -1,64 +1,64 @@
 ﻿@page
 @model TaskSchedulerApp.Pages.Cameras.IndexModel
 @{
-	ViewData["Title"] = "Manage Cameras";
+    ViewData["Title"] = "Manage Cameras";
 }
 
-<div class="container mt-4">
-	<div class="d-flex justify-content-between align-items-center mb-3">
-		<h1>Cameras</h1>
-		<a asp-page="./Create" class="btn btn-primary">Add New Camera</a>
-	</div>
+<div class="container mt-4 mb-5">
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
+        <h1 class="fw-bold mb-0">Cameras</h1>
+        <a asp-page="./Create" class="btn btn-primary">Add New Camera</a>
+    </div>
 
-	<!-- Added table-responsive for mobile scrolling -->
-	<div class="table-responsive">
-		<table class="table table-hover mt-4 align-middle">
-			<thead>
-				<tr>
-					<th>Name</th>
-					<th>Status</th>
-					<th class="text-end">Actions</th>
-				</tr>
-			</thead>
-			<tbody>
-				@foreach (var camera in Model.Cameras)
-				{
-					<tr class="@(camera.IsActive ? "" : "table-secondary text-muted")">
-						<td>@camera.Name</td>
-						<td>
-							<!-- Inline Toggle Form -->
-							<form method="post" asp-page-handler="ToggleStatus" asp-route-id="@camera.Id">
-								@if (camera.IsActive)
-								{
-									<button type="submit" class="btn btn-sm btn-success rounded-pill px-3" title="Click to deactivate">
-										Active
-									</button>
-								}
-								else
-								{
-									<button type="submit" class="btn btn-sm btn-danger rounded-pill px-3" title="Click to activate">
-										Inactive
-									</button>
-								}
-							</form>
-						</td>
-						<td class="text-end">
-							<!-- Pencil Icon instead of text -->
-							<a asp-page="./Edit" asp-route-id="@camera.Id" class="btn btn-sm btn-outline-secondary" title="Edit Name">
-								<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil" viewBox="0 0 16 16">
-									<path d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168l10-10zM11.207 2.5 13.5 4.793 14.793 3.5 12.5 1.207 11.207 2.5zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293l6.5-6.5zm-9.761 5.175-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325z" />
-								</svg>
-							</a>
-						</td>
-					</tr>
-				}
-				@if (!Model.Cameras.Any())
-				{
-					<tr>
-						<td colspan="3" class="text-center text-muted py-4">No cameras found. Add one to get started.</td>
-					</tr>
-				}
-			</tbody>
-		</table>
-	</div>
+    <div class="card border-0 shadow-sm">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Status</th>
+                        <th class="text-end">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var camera in Model.Cameras)
+                    {
+                        <tr class="@(camera.IsActive ? "" : "opacity-50")">
+                            <td class="fw-bold">@camera.Name</td>
+                            <td>
+                                <!-- Inline Toggle Form -->
+                                <form method="post" asp-page-handler="ToggleStatus" asp-route-id="@camera.Id">
+                                    @if (camera.IsActive)
+                                    {
+                                        <button type="submit" class="btn btn-sm btn-outline-success rounded-pill px-3 fw-bold" title="Click to deactivate">
+                                            Active
+                                        </button>
+                                    }
+                                    else
+                                    {
+                                        <button type="submit" class="btn btn-sm btn-outline-secondary rounded-pill px-3 fw-bold" title="Click to activate">
+                                            Inactive
+                                        </button>
+                                    }
+                                </form>
+                            </td>
+                            <td class="text-end">
+                                <a asp-page="./Edit" asp-route-id="@camera.Id" class="btn btn-sm btn-outline-secondary" title="Edit Name">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil" viewBox="0 0 16 16">
+                                        <path d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168l10-10zM11.207 2.5 13.5 4.793 14.793 3.5 12.5 1.207 11.207 2.5zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293l6.5-6.5zm-9.761 5.175-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325z" />
+                                    </svg>
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                    @if (!Model.Cameras.Any())
+                    {
+                        <tr>
+                            <td colspan="3" class="text-center text-muted py-5">No cameras found. Add one to get started.</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
 </div>

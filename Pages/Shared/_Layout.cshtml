@@ -1,191 +1,179 @@
 ﻿<!DOCTYPE html>
 <html lang="en">
 <head>
-	<meta charset="utf-8" />
-	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-	<title>@ViewData["Title"] - CCI Video Unit</title>
-	<script type="importmap"></script>
-	<link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
-	<link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
-	<!-- CCI Brand Styles -->
-	<link rel="stylesheet" href="~/css/cci.css" asp-append-version="true" />
-	<link rel="stylesheet" href="~/TaskSchedulerApp.styles.css" asp-append-version="true" />
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - CCI Video Unit</title>
+    <script type="importmap"></script>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/cci.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/TaskSchedulerApp.styles.css" asp-append-version="true" />
 </head>
 <body>
-	<header>
-		<!-- Changed navbar to dark theme with black background -->
-		<nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-dark bg-black border-bottom box-shadow mb-3">
-			<div class="container">
-				<!-- Replaced text with CCI Logo -->
-				<a class="navbar-brand d-flex align-items-center" asp-area="" asp-page="/Index">
-					<img src="https://www.joincci.org/logo.svg" alt="CCI Logo" style="height: 35px; margin-right: 10px;" />
-					<span class="text-white fw-bold d-none d-sm-inline" style="font-size: 1.2rem;">Video Unit</span>
-				</a>
-				<button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-						aria-expanded="false" aria-label="Toggle navigation">
-					<span class="navbar-toggler-icon"></span>
-				</button>
-				<div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-					<ul class="navbar-nav flex-grow-1">
-						@if (User.IsInRole("Admin"))
-						{
-							<!-- ADMIN LINKS -->
-							<li class="nav-item">
-								<a class="nav-link text-white" asp-area="" asp-page="/Index">Admin Dashboard</a>
-							</li>
-							<li class="nav-item">
-								<a class="nav-link text-white" asp-area="" asp-page="/Services/Index">Services</a>
-							</li>
-							<li class="nav-item">
-								<a class="nav-link text-white" asp-area="" asp-page="/Members/Index">Members</a>
-							</li>
-							<li class="nav-item">
-								<a class="nav-link text-white" asp-area="" asp-page="/Cameras/Index">Cameras</a>
-							</li>
-							<li class="nav-item">
-								<a class="nav-link text-white" asp-area="" asp-page="/AuditLogs/Index">Audit Log</a>
-							</li>
-						}
+    <header>
+        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-dark border-bottom mb-4">
+            <div class="container">
+                <a class="navbar-brand d-flex align-items-center" asp-area="" asp-page="/Index">
+                    <img src="https://www.joincci.org/logo.svg" alt="CCI Logo" style="height: 35px; margin-right: 12px;" />
+                    <span class="text-white fw-bold d-none d-sm-inline" style="font-size: 1.2rem;">Video Unit</span>
+                </a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
+                        aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
+                    <ul class="navbar-nav flex-grow-1">
+                        @if (User.IsInRole("Admin"))
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link" asp-area="" asp-page="/Index">Admin Dashboard</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" asp-area="" asp-page="/Services/Index">Services</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" asp-area="" asp-page="/Members/Index">Members</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" asp-area="" asp-page="/Cameras/Index">Cameras</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" asp-area="" asp-page="/AuditLogs/Index">Audit Log</a>
+                            </li>
+                        }
 
-						@if (User.Identity?.IsAuthenticated == true)
-						{
-							<!-- EVERYONE (Admin or Member) GETS THIS LINK -->
-							<li class="nav-item">
-								<a class="nav-link text-warning fw-bold" asp-area="" asp-page="/Member/Index">My Schedule</a>
-							</li>
-						}
+                        @if (User.Identity?.IsAuthenticated == true)
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link" style="color: var(--flame) !important; font-weight: bold;" asp-area="" asp-page="/Member/Index">My Schedule</a>
+                            </li>
+                        }
 
-						@if (User.Identity?.IsAuthenticated == true)
-						{
-							<!-- Notification Bell (Restored) -->
-							<li class="nav-item dropdown me-3 ms-auto">
-								<a class="nav-link text-white position-relative" href="#" id="notificationDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-									<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-bell-fill" viewBox="0 0 16 16">
-										<path d="M8 16a2 2 0 0 0 2-2H6a2 2 0 0 0 2 2zm.995-14.901a1 1 0 1 0-1.99 0A5.002 5.002 0 0 0 3 6c0 1.098-.5 6-2 7h14c-1.5-1-2-5.902-2-7 0-2.42-1.72-4.44-4.005-4.901z" />
-									</svg>
-									<!-- Red Badge (Hidden by default) -->
-									<span id="notificationBadge" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger d-none" style="font-size: 0.65rem;">
-										0
-									</span>
-								</a>
-								<!-- Dropdown Menu -->
-								<ul class="dropdown-menu dropdown-menu-end shadow" aria-labelledby="notificationDropdown" id="notificationList" style="width: 300px; max-height: 400px; overflow-y: auto;">
-									<li><h6 class="dropdown-header">Notifications</h6></li>
-									<li><a class="dropdown-item text-muted" href="#">No new notifications</a></li>
-								</ul>
-							</li>
+                        @if (User.Identity?.IsAuthenticated == true)
+                        {
+                            <li class="nav-item dropdown me-3 ms-auto">
+                                <a class="nav-link position-relative" href="#" id="notificationDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-bell-fill" viewBox="0 0 16 16">
+                                        <path d="M8 16a2 2 0 0 0 2-2H6a2 2 0 0 0 2 2zm.995-14.901a1 1 0 1 0-1.99 0A5.002 5.002 0 0 0 3 6c0 1.098-.5 6-2 7h14c-1.5-1-2-5.902-2-7 0-2.42-1.72-4.44-4.005-4.901z" />
+                                    </svg>
+                                    <span id="notificationBadge" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger d-none" style="font-size: 0.65rem;">
+                                        0
+                                    </span>
+                                </a>
+                                <ul class="dropdown-menu dropdown-menu-end shadow" aria-labelledby="notificationDropdown" id="notificationList" style="width: 300px; max-height: 400px; overflow-y: auto;">
+                                    <li><h6 class="dropdown-header">Notifications</h6></li>
+                                    <li><a class="dropdown-item text-muted" href="#">No new notifications</a></li>
+                                </ul>
+                            </li>
 
-							<li class="nav-item dropdown">
-								<a class="nav-link dropdown-toggle text-white" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-									@User.Identity?.Name
-								</a>
-								<ul class="dropdown-menu dropdown-menu-end shadow" aria-labelledby="navbarDropdown">
-									<li>
-										<a class="dropdown-item" asp-page="/Account/ChangePassword">Change Password</a>
-									</li>
-									<li><hr class="dropdown-divider"></li>
-									<li>
-										<form method="post" asp-page="/Account/Logout" class="d-inline">
-											<button type="submit" class="dropdown-item text-danger">Logout</button>
-										</form>
-									</li>
-								</ul>
-							</li>
-						}
-						else
-						{
-							<li class="nav-item ms-auto">
-								<a class="nav-link text-white" asp-area="" asp-page="/Account/Login">Login</a>
-							</li>
-						}
-					</ul>
-				</div>
-			</div>
-		</nav>
-	</header>
-	<div class="container">
-		<main role="main" class="pb-3">
-			@RenderBody()
-		</main>
-	</div>
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    @User.Identity?.Name
+                                </a>
+                                <ul class="dropdown-menu dropdown-menu-end shadow" aria-labelledby="navbarDropdown">
+                                    <li>
+                                        <a class="dropdown-item" asp-page="/Account/ChangePassword">Change Password</a>
+                                    </li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li>
+                                        <form method="post" asp-page="/Account/Logout" class="d-inline">
+                                            <button type="submit" class="dropdown-item text-danger">Logout</button>
+                                        </form>
+                                    </li>
+                                </ul>
+                            </li>
+                        }
+                        else
+                        {
+                            <li class="nav-item ms-auto">
+                                <a class="nav-link" asp-area="" asp-page="/Account/Login">Login</a>
+                            </li>
+                        }
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    </header>
+    <div class="container">
+        <main role="main" class="pb-5">
+            @RenderBody()
+        </main>
+    </div>
 
-	<footer class="border-top footer text-muted">
-		<div class="container">
-			&copy; 2026 - CCI Video Unit - <a asp-area="" asp-page="/Privacy">Privacy</a>
-		</div>
-	</footer>
+    <footer class="border-top footer text-muted py-4 mt-auto">
+        <div class="container text-center">
+            &copy; 2026 - CCI Video Unit
+        </div>
+    </footer>
 
-	<script src="~/lib/jquery/dist/jquery.min.js"></script>
-	<script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-	<script src="~/js/site.js" asp-append-version="true"></script>
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
 
-	@await RenderSectionAsync("Scripts", required: false)
-	<!-- Hidden form to get the security token for AJAX posts -->
-	<form id="afTokenForm" method="post" style="display:none;">
-		@Html.AntiForgeryToken()
-	</form>
+    @await RenderSectionAsync("Scripts", required: false)
+    
+    <form id="afTokenForm" method="post" style="display:none;">
+        @Html.AntiForgeryToken()
+    </form>
 
-	<script>
-			document.addEventListener("DOMContentLoaded", function() {
-				// Only run if the user is logged in (the badge exists)
-				const badge = document.getElementById('notificationBadge');
-				if (!badge) return;
+    <script>
+            document.addEventListener("DOMContentLoaded", function() {
+                const badge = document.getElementById('notificationBadge');
+                if (!badge) return;
 
-				const list = document.getElementById('notificationList');
-				const dropdown = document.getElementById('notificationDropdown');
+                const list = document.getElementById('notificationList');
+                const dropdown = document.getElementById('notificationDropdown');
 
-				async function fetchNotifications() {
-					try {
-						const response = await fetch('/Notifications?handler=Unread');
-						const data = await response.json();
+                async function fetchNotifications() {
+                    try {
+                        const response = await fetch('/Notifications?handler=Unread');
+                        const data = await response.json();
 
-						if (data.count > 0) {
-							badge.textContent = data.count;
-							badge.classList.remove('d-none');
+                        if (data.count > 0) {
+                            badge.textContent = data.count;
+                            badge.classList.remove('d-none');
 
-							// Build the dropdown items
-							let html = '<li><h6 class="dropdown-header">Notifications</h6></li>';
-							data.items.forEach(item => {
-								html += `
-											<li>
-												<a class="dropdown-item text-wrap small" href="${item.linkUrl}">
-													${item.message}
-													<div class="text-muted" style="font-size: 0.75rem;">${item.time}</div>
-												</a>
-											</li>
-											<li><hr class="dropdown-divider"></li>
-										`;
-							});
-							list.innerHTML = html;
-						} else {
-							badge.classList.add('d-none');
-							list.innerHTML = '<li><h6 class="dropdown-header">Notifications</h6></li><li><a class="dropdown-item text-muted" href="#">No new notifications</a></li>';
-						}
-					} catch (e) {
-						console.error("Failed to load notifications", e);
-					}
-				}
+                            let html = '<li><h6 class="dropdown-header">Notifications</h6></li>';
+                            data.items.forEach(item => {
+                                html += `
+                                            <li>
+                                                <a class="dropdown-item text-wrap small" href="${item.linkUrl}">
+                                                    ${item.message}
+                                                    <div class="text-muted" style="font-size: 0.75rem;">${item.time}</div>
+                                                </a>
+                                            </li>
+                                            <li><hr class="dropdown-divider"></li>
+                                        `;
+                            });
+                            list.innerHTML = html;
+                        } else {
+                            badge.classList.add('d-none');
+                            list.innerHTML = '<li><h6 class="dropdown-header">Notifications</h6></li><li><a class="dropdown-item text-muted" href="#">No new notifications</a></li>';
+                        }
+                    } catch (e) {
+                        console.error("Failed to load notifications", e);
+                    }
+                }
 
-				// Fetch immediately, then every 30 seconds
-				fetchNotifications();
-				setInterval(fetchNotifications, 30000);
+                fetchNotifications();
+                setInterval(fetchNotifications, 30000);
 
-				// Mark as read when the dropdown is clicked
-				dropdown.addEventListener('click', async function() {
-					if (badge.classList.contains('d-none')) return; // Don't bother if already read
+                dropdown.addEventListener('click', async function() {
+                    if (badge.classList.contains('d-none')) return;
 
-					const token = document.querySelector('input[name="__RequestVerificationToken"]').value;
+                    const token = document.querySelector('input[name="__RequestVerificationToken"]').value;
 
-					await fetch('/Notifications?handler=MarkRead', {
-						method: 'POST',
-						headers: {
-							'RequestVerificationToken': token
-						}
-					});
+                    await fetch('/Notifications?handler=MarkRead', {
+                        method: 'POST',
+                        headers: {
+                            'RequestVerificationToken': token
+                        }
+                    });
 
-					badge.classList.add('d-none');
-				});
-			});
-	</script>
+                    badge.classList.add('d-none');
+                });
+            });
+    </script>
 </body>
 </html>
