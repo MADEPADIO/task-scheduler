@@ -30,6 +30,23 @@ namespace TaskSchedulerApp.Pages.Account
 			public string? Password { get; set; } = string.Empty;
 		}
 
+		public IActionResult OnGet()
+		{
+			if (User.Identity?.IsAuthenticated == true)
+			{
+				if (User.IsInRole("Admin"))
+				{
+					return RedirectToPage("/Index");
+				}
+				else
+				{
+					return RedirectToPage("/Member/Index");
+				}
+			}
+
+			return Page();
+		}
+
 		public async Task<IActionResult> OnPostAsync()
 		{
 			if (!ModelState.IsValid)

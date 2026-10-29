@@ -226,6 +226,7 @@ namespace TaskSchedulerApp.Pages.Assignments
 						Id = Guid.NewGuid(),
 						UserId = sub.UserId.Value,
 						Message = $"You have been assigned to {camera?.Name} for {session.Name} on {service.Date.ToString("MMM dd")}.",
+						LinkUrl = $"/Member/Index",
 						CreatedAt = DateTime.UtcNow
 					});
 				}

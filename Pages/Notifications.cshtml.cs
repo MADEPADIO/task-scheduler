@@ -30,7 +30,13 @@ namespace TaskSchedulerApp.Pages
 				.Where(n => n.UserId == userId && !n.IsRead)
 				.OrderByDescending(n => n.CreatedAt)
 				.Take(10)
-				.Select(n => new { n.Id, n.Message, Time = n.CreatedAt.ToString("MMM dd, hh:mm tt") })
+				.Select(n => new 
+				{ 
+					n.Id, 
+					n.Message, 
+					LinkUrl = n.LinkUrl ?? "#", 
+					Time = n.CreatedAt.ToString("MMM dd, hh:mm tt") 
+				})
 				.ToListAsync();
 
 			return new JsonResult(new { count = notifications.Count, items = notifications });

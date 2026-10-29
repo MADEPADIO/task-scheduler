@@ -7,7 +7,7 @@ using TaskSchedulerApp.Models;
 
 namespace TaskSchedulerApp.Pages
 {
-	[Authorize(Roles = "Admin")]
+	[Authorize]
 	public class IndexModel : PageModel
 	{
 		private readonly SchedulerContext _context;
@@ -22,8 +22,12 @@ namespace TaskSchedulerApp.Pages
 		public int TotalMembers { get; set; }
 		public int TotalCameras { get; set; }
 
-		public async Task OnGetAsync()
+		public async Task<IActionResult> OnGetAsync()
 		{
+			if (!User.IsInRole("Admin"))
+			{
+				return RedirectToPage("/Member/Index");
+			}
 			// Get the 3 closest upcoming services
 			var today = DateOnly.FromDateTime(DateTime.Today);
 			UpcomingServices = await _context.Services
@@ -49,6 +53,7 @@ namespace TaskSchedulerApp.Pages
 			TotalMembers = await _context.Users.CountAsync(u => u.IsActive);
 			TotalCameras = await _context.Cameras.CountAsync(c => c.IsActive);
 
+			return Page();
 		}
 	}
 }

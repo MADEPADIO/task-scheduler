@@ -68,19 +68,20 @@
 
 <!-- Loop through the list of absences provided by the backend -->
 <ul class="mb-0">
-	@foreach (var absence in Model.RecentAbsences)
-	{
-<li class="mb-2">
-			<!-- Display the member's name, the SERVICE NAME, the date, the session, and the camera they are missing -->
-			<strong>@absence.User.Name</strong> is absent for
-			<strong>@absence.Session.Service.Name</strong>
-			(@absence.Session.Service.Date.ToString("ddd, MMM dd") - @absence.Session.Name)
-			on <strong>@absence.Camera.Name</strong>.
-			<br />
-			<!-- Display the reason they gave, styled slightly muted -->
-			<span class="text-muted small">Reason: <em>"@absence.AbsenceReason"</em></span>
-		</li>
-	}
+				@foreach (var absence in Model.RecentAbsences)
+				{
+					<li class="mb-2">
+						<!-- Wrap the text in a link to the assignment grid -->
+						<a asp-page="/Assignments/Index" asp-route-id="@absence.Session.ServiceId" class="text-danger text-decoration-none">
+							<strong>@absence.User.Name</strong> is absent for
+							<strong>@absence.Session.Service.Name</strong>
+							(@absence.Session.Service.Date.ToString("ddd, MMM dd") - @absence.Session.Name)
+							on <strong>@absence.Camera.Name</strong>.
+						</a>
+						<br />
+						<span class="text-muted small">Reason: <em>"@absence.AbsenceReason"</em></span>
+					</li>
+				}
 </ul>
 <hr />
 <!-- Prompt the Admin to take action -->
