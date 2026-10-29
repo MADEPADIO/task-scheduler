@@ -8,7 +8,7 @@ using TaskSchedulerApp.Models;
 
 namespace TaskSchedulerApp.Pages.Members
 {
-	[Authorize]
+	[Authorize(Roles = "Admin")]
     public class IndexModel : PageModel
     {
 		private readonly SchedulerContext _context;
@@ -46,6 +46,10 @@ namespace TaskSchedulerApp.Pages.Members
 				}
 
 				user.IsAdmin = !user.IsAdmin;
+				if (!user.IsAdmin)
+				{
+					user.PasswordHash = null;
+				}
 				await _context.SaveChangesAsync();
 			}
 
@@ -73,6 +77,26 @@ namespace TaskSchedulerApp.Pages.Members
 			}
 			return RedirectToPage("./Index");
 
+		}
+
+		// Generate Temporary Password for an Admin
+		public async Task<IActionResult> OnPostResetPasswordAsync(Guid id)
+		{
+			var user = await _context.Users.FindAsync(id);
+
+			if (user is not null && user.IsAdmin)
+			{
+				var tempPassword = Guid.NewGuid().ToString("N").Substring(0, 8) + "Aa1!";
+
+				// Hash it and save it to the database
+				user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(tempPassword);
+
+				await _context.SaveChangesAsync();
+
+				TempData["TempPassword"] = $"Temporary password for {user.Name}: {tempPassword}";
+			}
+
+			return RedirectToPage("./Index");
 		}
     }
 }
