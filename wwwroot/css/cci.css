@@ -1,0 +1,117 @@
+﻿@import url('https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,300;0,400;0,700;0,900;1,400&display=swap');
+
+:root {
+	--cci-red: #DF4E4E;
+	--cci-red-hover: #c43d3d;
+	--cci-black: #111111;
+	--cci-dark-grey: #4C4C4C;
+	--cci-light-bg: #f4f6f8;
+}
+
+body {
+	font-family: 'Lato', sans-serif;
+	background-color: var(--cci-light-bg);
+	color: var(--cci-dark-grey);
+	-webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3, h4, h5, h6 {
+	font-weight: 700;
+	color: var(--cci-black);
+	letter-spacing: -0.5px;
+}
+
+/* Cards */
+.card {
+	border: none;
+	border-radius: 12px;
+	box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+	margin-bottom: 1.5rem;
+}
+
+.card-header {
+	background-color: #fff;
+	border-bottom: 1px solid #eee;
+	border-radius: 12px 12px 0 0 !important;
+	padding: 1.25rem;
+	font-weight: 700;
+}
+
+/* Primary Buttons are now Black to avoid "Danger" feeling */
+.btn-primary {
+	background-color: var(--cci-black) !important;
+	border-color: var(--cci-black) !important;
+	color: #fff !important;
+}
+
+	.btn-primary:hover {
+		background-color: #333 !important;
+		border-color: #333 !important;
+		transform: translateY(-1px);
+	}
+
+/* Outline buttons use the CCI Red as an accent */
+.btn-outline-primary {
+	color: var(--cci-red) !important;
+	border-color: var(--cci-red) !important;
+}
+
+	.btn-outline-primary:hover {
+		background-color: var(--cci-red) !important;
+		color: #fff !important;
+	}
+
+.btn {
+	border-radius: 8px;
+	font-weight: 600;
+	padding: 0.5rem 1.25rem;
+	transition: all 0.2s;
+}
+
+/* Tables */
+.table {
+	margin-bottom: 0;
+}
+
+	.table th {
+		font-weight: 700;
+		color: var(--cci-black);
+		text-transform: uppercase;
+		font-size: 0.8rem;
+		letter-spacing: 0.5px;
+		border-bottom-width: 2px;
+	}
+
+	.table td {
+		vertical-align: middle;
+	}
+
+/* Forms */
+.form-control, .form-select {
+	border-radius: 8px;
+	border: 1px solid #ced4da;
+	padding: 0.6rem 1rem;
+}
+
+	.form-control:focus, .form-select:focus {
+		border-color: var(--cci-red);
+		box-shadow: 0 0 0 0.25rem rgba(223, 78, 78, 0.25);
+	}
+
+/* Soft Badges for Assignment Grid */
+.bg-success-soft {
+	background-color: #d1e7dd !important;
+}
+
+.bg-danger-soft {
+	background-color: #f8d7da !important;
+}
+
+.bg-warning-soft {
+	background-color: #fff3cd !important;
+}
+
+/* Navbar specific tweaks */
+.navbar-brand img {
+	filter: brightness(0) invert(1); /* Ensures the logo is white */
+}
