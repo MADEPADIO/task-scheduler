@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using Npgsql;
 using TaskSchedulerApp.Data;
 using TaskSchedulerApp.Pages.Filters;
@@ -65,7 +66,7 @@ namespace TaskSchedulerApp
 
 			using (var scope = app.Services.CreateScope())
 			{
-				var db = scope.ServiceProvider.GetRequiredKeyedService<SchedulerContext>();
+				var db = scope.ServiceProvider.GetRequiredService<SchedulerContext>();
 				db.Database.Migrate();
 			}
 			// Configure the HTTP request pipeline.
