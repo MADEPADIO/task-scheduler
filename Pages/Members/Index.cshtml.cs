@@ -82,6 +82,13 @@ namespace TaskSchedulerApp.Pages.Members
 		// Generate Temporary Password for an Admin
 		public async Task<IActionResult> OnPostResetPasswordAsync(Guid id)
 		{
+			var currentUserId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+
+			if (id == currentUserId)
+			{
+				TempData["Error"] = "To change you own password, use the 'Change Password' menu in the top right.";
+				return RedirectToPage("./Index");
+			}
 			var user = await _context.Users.FindAsync(id);
 
 			if (user is not null && user.IsAdmin)
