@@ -20,6 +20,8 @@ namespace TaskSchedulerApp.Pages.Members
 
 		public IList<User> Members { get; set; } = default!;
 
+		public int TotalActiveMembers { get; set; }
+
 		// Binds the search string from the URL
 		[BindProperty(SupportsGet = true)]
 		public string? SearchTerm { get; set; }
@@ -27,6 +29,8 @@ namespace TaskSchedulerApp.Pages.Members
 		public async Task OnGetAsync()
 		{
 			var query = _context.Users.Where(u => u.IsActive).AsQueryable();
+
+			TotalActiveMembers = await query.CountAsync();
 
 			if (!string.IsNullOrWhiteSpace(SearchTerm))
 			{
