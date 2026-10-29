@@ -63,6 +63,11 @@ namespace TaskSchedulerApp
 
 			var app = builder.Build();
 
+			using (var scope = app.Services.CreateScope())
+			{
+				var db = scope.ServiceProvider.GetRequiredKeyedService<SchedulerContext>();
+				db.Database.Migrate();
+			}
 			// Configure the HTTP request pipeline.
 			if (!app.Environment.IsDevelopment())
 			{
@@ -72,12 +77,16 @@ namespace TaskSchedulerApp
 				// The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
 				app.UseHsts();
 			}
+			else
+			{
+				app.UseHttpsRedirection();
+			}
 
 			// NEW: This intercepts 404 (Not Found), 403 (Access Denied), etc., 
 			// and routes them to our new 404 page instead of the browser's default.
 			app.UseStatusCodePagesWithReExecute("/404");
 
-			app.UseHttpsRedirection();
+			
 
 			app.UseRouting();
 
