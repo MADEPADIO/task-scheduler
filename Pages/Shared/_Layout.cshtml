@@ -62,10 +62,21 @@
 									<li><a class="dropdown-item text-muted" href="#">No new notifications</a></li>
 								</ul>
 							</li>
-							<li class="nav-item ms-auto">
-								<form method="post" asp-page="/Account/Logout" class="d-inline">
-									<button type="submit" class="btn btn-link nav-link text-dark text-decoration-none">Logout</button>
-								</form>
+							<li class="nav-item dropdown ms-auto">
+								<a class="nav-link dropdown-toggle text-dark" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+									@User.Identity?.Name
+								</a>
+								<ul class="dropdown-menu dropdown-menu-end shadow" aria-labelledby="navbarDropdown">
+									<li>
+										<a class="dropdown-item" asp-page="/Account/ChangePassword">Change Password</a>
+									</li>
+									<li><hr class="dropdown-divider"></li>
+									<li>
+										<form method="post" asp-page="/Account/Logout" class="d-inline">
+											<button type="submit" class="dropdown-item text-danger">Logout</button>
+										</form>
+									</li>
+								</ul>
 							</li>
 						}
 						else

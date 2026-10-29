@@ -1,25 +1,31 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
-using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 
 namespace TaskSchedulerApp.Pages.Filters
 {
-	public class MustChangePasswordFilter : IAsyncPageFilter
+	public class MustChangePasswordFilter : IPageFilter
 	{
-		public Task OnPageHandlerSelectionAsync(PageHandlerSelectedContext context) => Task.CompletedTask;
+		public void OnPageHandlerSelected(PageHandlerSelectedContext context) { }
 
-		public async Task OnPageHandlerExecutionAsync(PageHandlerExecutingContext context, PageHandlerExecutionDelegate next)
+		public void OnPageHandlerExecuting(PageHandlerExecutingContext context)
 		{
 			var user = context.HttpContext.User;
 
-			// If user is logged in, and has the flag, and is NOT on the ChangePassword or Logout Page
-			if (user.Identity?.IsAuthenticated == true && !context.ActionDescriptor.ViewEnginePath.Contains("/Account/ChangePassword") && !context.ActionDescriptor.ViewEnginePath.Contains("/Account/Logout"))
+			// Check if logged in, check if the claim is "true", and ensure we aren't on the ChangePassword or Logout pages
+			if (user.Identity?.IsAuthenticated == true &&
+				user.FindFirst("MustChangePassword")?.Value == "true")
 			{
-				context.Result = new RedirectToPageResult("/Account/ChangePassword");
-				return;
-			}
+				var path = context.ActionDescriptor.ViewEnginePath;
 
-			await next();
+				// If we are NOT on the ChangePassword page, and NOT on the Logout page, redirect.
+				if (!path.Contains("/Account/ChangePassword", StringComparison.OrdinalIgnoreCase) &&
+					!path.Contains("/Account/Logout", StringComparison.OrdinalIgnoreCase))
+				{
+					context.Result = new RedirectToPageResult("/Account/ChangePassword");
+				}
+			}
 		}
+
+		public void OnPageHandlerExecuted(PageHandlerExecutedContext context) { }
 	}
 }

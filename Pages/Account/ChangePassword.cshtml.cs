@@ -84,6 +84,7 @@ namespace TaskSchedulerApp.Pages.Account
 			await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(claimsIdentity));
 
 			TempData["Success"] = "Password updated succefully.";
+
 			return user.IsAdmin ? RedirectToPage("/Index") : RedirectToPage("/Member/Index");
 
 		}

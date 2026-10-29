@@ -81,7 +81,7 @@ namespace TaskSchedulerApp.Pages.Account
 				new Claim(ClaimTypes.Name, user.Name),
 				new Claim(ClaimTypes.Email, user.Email),
 				new Claim(ClaimTypes.Role, user.IsAdmin ? "Admin" : "Member"),
-				new Claim("MustChangePassword", user.MustChangePassword.ToString())
+				new Claim("MustChangePassword", user.MustChangePassword.ToString().ToLower())
 			};
 
 			var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
