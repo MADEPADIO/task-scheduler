@@ -237,5 +237,78 @@ namespace TaskSchedulerApp.Pages.Assignments
 			TempData["Success"] = "Assignments saved successfully.";
 			return RedirectToPage("./Index", new { id = serviceId });
 		}
+
+		public async Task<IActionResult> OnPostCopyLastWeekAsync(Guid serviceId)
+		{
+			var currentService = await _context.Services
+				.Include(s => s.Sessions)
+				.FirstOrDefaultAsync(s => s.Id == serviceId);
+
+			if (currentService is null)
+			{
+				return NotFound();
+			}
+
+			// Find the most recent service with the same name BEFORE the current date
+			var previousService = await _context.Services
+				.Include(s => s.Sessions)
+				.Where(s => s.Name == currentService.Name && s.Date < currentService.Date)
+				.OrderByDescending(s => s.Date)
+				.FirstOrDefaultAsync();
+
+			if (previousService is null)
+			{
+				TempData["Error"] = "No previous service found to copy from.";
+					return RedirectToPage("./Index", new { id = serviceId });
+			}
+
+			// Get all assignment from that previous service
+			var previousAssignments = await _context.Assignments
+				.Where(a => a.Session.ServiceId == previousService.Id)
+				.ToListAsync();
+
+			if (!previousAssignments.Any())
+			{
+				TempData["Error"] = $"The previous service ({previousService.Date.ToString("MMM dd")}) had no assignments to copy.";
+				return RedirectToPage("./Index", new { id = serviceId });
+			}
+
+			// Get current assignments to avoid duplicates
+			var currentAssignments = await _context.Assignments
+				.Where(a => a.Session.ServiceId == serviceId)
+				.ToListAsync();
+
+			int copiedCount = 0;
+
+			foreach (var prevAssignment in previousAssignments)
+			{
+				// Find the matching session in the current service by order
+				var prevSession = previousService.Sessions.First(s => s.Id == prevAssignment.SessionId);
+				var currentSession = currentService.Sessions.FirstOrDefault(s => s.Order == prevSession.Order);
+
+				if (currentSession is not null)
+				{
+					// Check if this slot is already filled in the current service
+					var exists = currentAssignments.Any(a => a.SessionId == currentSession.Id && a.CameraId == prevAssignment.CameraId);
+
+					if (!exists)
+					{
+						_context.Assignments.Add(new Assignment
+						{
+							Id = Guid.NewGuid(),
+							SessionId = currentSession.Id,
+							CameraId = prevAssignment.CameraId,
+							UserId = prevAssignment.UserId,
+							Status = AssignmentStatus.Pending // Reset Status to pending for the new week
+						});
+						copiedCount++;
+					}
+				}
+			}
+			await _context.SaveChangesAsync();
+
+			TempData["Success"] = $"Successfully copied {copiedCount} assignments from {previousService.Date.ToString("MMM dd")}. Review them below.";
+			return RedirectToPage("./Index", new { id = serviceId });
+		}
 	}
 }
