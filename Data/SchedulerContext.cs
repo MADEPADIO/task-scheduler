@@ -72,6 +72,9 @@ namespace TaskSchedulerApp.Data
 
 				entity.Property(a => a.AbsenceReason).HasMaxLength(500);
 
+				// Use Npgsql built-in 'xmin' system column as a concurrency token
+				entity.ForNpgsqlUseXminAsConcurrencyToken();
+
 				// Three explicit FKs — do not rely on convention here
 				entity.HasOne(a => a.Session)
 					  .WithMany(s => s.Assignments)

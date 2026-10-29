@@ -112,8 +112,16 @@ namespace TaskSchedulerApp.Pages.Member
 				}
 			}
 
-			await _context.SaveChangesAsync();
-			TempData["Success"] = "Your schedule has been updated successfully.";
+			// Catch concurrency conflict incase the admin makes a change
+			try
+			{
+				await _context.SaveChangesAsync();
+				TempData["Success"] = "Your schedule has been updated successfully.";
+			}
+			catch
+			{
+				TempData["Error"] = "The schedule was updated while you were saving. Please try again.";
+			}
 			return RedirectToPage("./Index");
 		}
 	}

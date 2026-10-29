@@ -232,8 +232,16 @@ namespace TaskSchedulerApp.Pages.Assignments
 				}
 			}
 
-			await _context.SaveChangesAsync();
+			try
+			{
+				await _context.SaveChangesAsync();
+			}
+			catch (DbUpdateConcurrencyException)
+			{
+				TempData["Error"] = "Conflict Detected: Another admin modified this schedule while you were making changes. Please refresh to see the latest assignments and try again.";
+				return RedirectToPage("./Index", new { id = serviceId });
 
+			}
 			TempData["Success"] = "Assignments saved successfully.";
 			return RedirectToPage("./Index", new { id = serviceId });
 		}
