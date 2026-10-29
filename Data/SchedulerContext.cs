@@ -66,14 +66,17 @@ namespace TaskSchedulerApp.Data
 				entity.HasKey(a => a.Id);
 
 				entity.Property(a => a.Status)
-					  .HasConversion<string>()
-					  .HasMaxLength(20)
-					  .HasDefaultValue(AssignmentStatus.Pending);
+					  .HasColumnType("xid")
+					  .ValueGeneratedOnAddOrUpdate()
+					  .IsConcurrencyToken();
 
 				entity.Property(a => a.AbsenceReason).HasMaxLength(500);
 
-				// Use Npgsql built-in 'xmin' system column as a concurrency token
-				entity.ForNpgsqlUseXminAsConcurrencyToken();
+				// Map the shadow property "xmin" as a row version for concurrency control
+				entity.Property(a => a.Status)
+					  .HasConversion<string>()
+					  .HasMaxLength(20)
+					  .HasDefaultValue(AssignmentStatus.Pending);
 
 				// Three explicit FKs — do not rely on convention here
 				entity.HasOne(a => a.Session)
