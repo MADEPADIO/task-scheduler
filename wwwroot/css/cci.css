@@ -190,3 +190,20 @@ h1, h2, h3, h4, h5, h6, .display-5, .display-6 {
 	padding: 0.4em 0.8em;
 	border-radius: 6px;
 }
+
+/* Fix for assignment grid on mobile */
+@media (max-width: 768px) {
+	.table-responsive {
+		-webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+	}
+
+		.table-responsive .form-select {
+			min-width: 140px !important; /* Prevents the dropdown from shrinking to just an arrow */
+			font-size: 0.85rem; /* Slightly smaller text so it fits */
+		}
+
+		.table-responsive th,
+		.table-responsive td {
+			white-space: nowrap; /* Keeps the session names on one line */
+		}
+}

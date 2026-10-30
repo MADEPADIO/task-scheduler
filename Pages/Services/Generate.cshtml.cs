@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.EntityFrameworkCore;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using TaskSchedulerApp.Data;
@@ -47,9 +48,19 @@ namespace TaskSchedulerApp.Pages.Services
 				return Page();
 			}
 
+			int duplicatesSkipped = 0;
+
 			for (int i = 0; i < NumberOfWeeks; i++)
 			{
 				var currentDate = StartDate.AddDays(i * 7);
+
+				bool alreadyExists = await _context.Services.AnyAsync(s => s.Date == currentDate && s.Name == "First Service");
+
+				if (alreadyExists)
+				{
+					duplicatesSkipped++;
+					continue;
+				}
 
 				// 1. Create the 3 Services
 				var service1 = new Service { Id = Guid.NewGuid(), Name = "First Service", Date = currentDate, StartTime = new TimeOnly(8, 0) };
@@ -95,6 +106,15 @@ namespace TaskSchedulerApp.Pages.Services
 			}
 
 			await _context.SaveChangesAsync();
+
+			if (duplicatesSkipped > 0)
+			{
+				TempData["Error"] = $"Schedule generated, but {duplicatesSkipped} week(s) were skipped because they already existed in the database.";
+			}
+			else
+			{
+				TempData["Success"] = "Schedule generated successfully!";
+			}
 
 			return RedirectToPage("./Index");
 
