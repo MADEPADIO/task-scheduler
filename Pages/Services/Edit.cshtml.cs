@@ -44,6 +44,15 @@ namespace TaskSchedulerApp.Pages.Services
 				return Page();
 			}
 
+			// Check for duplicates, excluding the current service being edited
+			var duplicateExists = await _context.Services.AnyAsync(s => s.Id != Service.Id && s.Date == Service.Date && s.Name.ToLower() == Service.Name.ToLower());
+
+			if (duplicateExists)
+			{
+				ModelState.AddModelError(string.Empty, $"Another service named '{Service.Name}' already exists on {Service.Date.ToString("MMM dd, yyyy")}.");
+				return Page();
+			}
+
 			_context.Attach(Service).State = EntityState.Modified;
 
 			try

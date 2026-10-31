@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.EntityFrameworkCore;
 using TaskSchedulerApp.Data;
 using TaskSchedulerApp.Models;
 
@@ -37,6 +38,15 @@ namespace TaskSchedulerApp.Pages.Services
 			{
 				return Page();
 
+			}
+
+			// Check for duplicates (Same Date and Same Name)
+			var duplicateExists = await _context.Services.AnyAsync(s => s.Date == Service.Date && s.Name.ToLower() == Service.Name.ToLower());
+
+			if (duplicateExists)
+			{
+				ModelState.AddModelError(string.Empty, $"A service named '{Service.Name}' already exists on {Service.Date.ToString("MMM dd, yyyy")}.");
+				return Page();
 			}
 
 			_context.Services.Add(Service);

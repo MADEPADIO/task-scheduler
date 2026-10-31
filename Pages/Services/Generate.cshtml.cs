@@ -63,9 +63,9 @@ namespace TaskSchedulerApp.Pages.Services
 				}
 
 				// 1. Create the 3 Services
-				var service1 = new Service { Id = Guid.NewGuid(), Name = "First Service", Date = currentDate, StartTime = new TimeOnly(8, 0) };
-				var service2 = new Service { Id = Guid.NewGuid(), Name = "Second Service", Date = currentDate, StartTime = new TimeOnly(10, 0) };
-				var service3 = new Service { Id = Guid.NewGuid(), Name = "Third Service", Date = currentDate, StartTime = new TimeOnly(12, 0) };
+				var service1 = new Service { Id = Guid.NewGuid(), Name = "First Service", Date = currentDate, StartTime = new TimeOnly(7, 30) };
+				var service2 = new Service { Id = Guid.NewGuid(), Name = "Second Service", Date = currentDate, StartTime = new TimeOnly(9, 30) };
+				var service3 = new Service { Id = Guid.NewGuid(), Name = "Third Service", Date = currentDate, StartTime = new TimeOnly(11, 30) };
 
 				_context.Services.AddRange(service1, service2, service3);
 
