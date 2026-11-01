@@ -207,3 +207,9 @@ h1, h2, h3, h4, h5, h6, .display-5, .display-6 {
 			white-space: nowrap; /* Keeps the session names on one line */
 		}
 }
+
+/* Fix for Audit Log Table Headers */
+.audit-table th {
+	color: #ffffff !important;
+	background-color: var(--ink) !important;
+}
