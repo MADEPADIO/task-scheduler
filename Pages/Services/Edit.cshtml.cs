@@ -8,8 +8,8 @@ using TaskSchedulerApp.Models;
 namespace TaskSchedulerApp.Pages.Services
 {
 	[Authorize(Roles = "Admin")]
-    public class EditModel : PageModel
-    {
+	public class EditModel : PageModel
+	{
 		private readonly SchedulerContext _context;
 
 		public EditModel(SchedulerContext context)
@@ -53,7 +53,17 @@ namespace TaskSchedulerApp.Pages.Services
 				return Page();
 			}
 
-			_context.Attach(Service).State = EntityState.Modified;
+			// NEW: Fetch the existing service from the database first so EF Core tracks the changes accurately
+			var serviceToUpdate = await _context.Services.FindAsync(Service.Id);
+			if (serviceToUpdate is null)
+			{
+				return NotFound();
+			}
+
+			// Update only the editable fields
+			serviceToUpdate.Name = Service.Name;
+			serviceToUpdate.Date = Service.Date;
+			serviceToUpdate.StartTime = Service.StartTime;
 
 			try
 			{

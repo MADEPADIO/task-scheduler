@@ -45,22 +45,19 @@ namespace TaskSchedulerApp.Pages.Cameras
 			{
 				return Page();
 			}
-			_context.Attach(Camera).State = EntityState.Modified;
-			try
+
+			// Fetch the existing camera from the database
+			var cameraToUpdate = await _context.Cameras.FindAsync(Camera.Id);
+			if (cameraToUpdate is null)
 			{
-				await _context.SaveChangesAsync();
+				return NotFound();
 			}
-			catch (DbUpdateConcurrencyException)
-			{
-				if (!CameraExists(Camera.Id))
-				{
-					return NotFound();
-				}
-				else
-				{
-					throw;
-				}
-			}
+			
+			// Update only the fields that were submitted
+			cameraToUpdate.Name = Camera.Name;
+			cameraToUpdate.IsActive = Camera.IsActive;
+
+			await _context.SaveChangesAsync();
 			return RedirectToPage("./Index");
 		}
 

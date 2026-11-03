@@ -40,45 +40,60 @@ namespace TaskSchedulerApp.Data
 
 				var action = entry.State.ToString();
 				var entityName = entry.Entity.GetType().Name;
-				string details = "Unknown";
+				string details = "";
 
 				var entity = entry.Entity;
-				string entityIdentifier = "Unknown Item";
+				string entityIdentifier = "Item";
 
-				// 1. Get the identity of the item being changed
 				if (entity is User u) entityIdentifier = $"User '{u.Name}'";
 				else if (entity is Camera c) entityIdentifier = $"Camera '{c.Name}'";
-				else if (entity is Service s) entityIdentifier = $"Service '{s.Name}'";
+				else if (entity is Service s) entityIdentifier = $"Service '{s.Name}' ({s.Date})";
 				else if (entity is Session se) entityIdentifier = $"Session '{se.Name}'";
-				else if (entity is Assignment a) entityIdentifier = $"Assignment for Camera ID {a.CameraId}";
 
-				// 2. Build the details based on the action
-				if (entry.State == EntityState.Added || entry.State == EntityState.Deleted)
+				if (entry.State == EntityState.Added)
 				{
-					details = entityIdentifier;
+					details = $"Created {entityIdentifier}";
+				}
+				else if (entry.State == EntityState.Deleted)
+				{
+					details = $"Deleted {entityIdentifier}";
 				}
 				else if (entry.State == EntityState.Modified)
 				{
-					var modifiedProps = new List<string>();
+					var changes = new List<string>();
 					foreach (var prop in entry.Properties)
 					{
-						if (prop.IsModified && !prop.Metadata.IsPrimaryKey())
+						// ONLY log if the value actually changed
+						if (!Equals(prop.OriginalValue, prop.CurrentValue))
 						{
-							string oldVal = prop.OriginalValue?.ToString() ?? "null";
-							string newVal = prop.CurrentValue?.ToString() ?? "null";
+							string field = prop.Metadata.Name;
+							string oldVal = prop.OriginalValue?.ToString() ?? "empty";
+							string newVal = prop.CurrentValue?.ToString() ?? "empty";
 
+							// Translate Booleans to English
 							if (prop.OriginalValue is bool b1) oldVal = b1 ? "Yes" : "No";
 							if (prop.CurrentValue is bool b2) newVal = b2 ? "Yes" : "No";
 
-							modifiedProps.Add($"{prop.Metadata.Name}: '{oldVal}' -> '{newVal}'");
+							// Format specific fields in a human-readable way
+							if (field == "IsActive")
+							{
+								changes.Add($"Status changed to {(newVal == "Yes" ? "Active" : "Inactive")}");
+							}
+							else if (field == "IsAdmin")
+							{
+								changes.Add($"Role changed to {(newVal == "Yes" ? "Admin" : "Member")}");
+							}
+							else
+							{
+								changes.Add($"{field} changed from '{oldVal}' to '{newVal}'");
+							}
 						}
 					}
 
-					if (modifiedProps.Any())
-					{
-						// Combine the identifier and the changes
-						details = $"{entityIdentifier} | {string.Join(" | ", modifiedProps)}";
-					}
+					// If nothing actually changed, skip creating a log entry
+					if (!changes.Any()) continue;
+
+					details = $"Updated {entityIdentifier}: {string.Join(", ", changes)}";
 				}
 
 				auditEntries.Add(new AuditLog
